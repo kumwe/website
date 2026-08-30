@@ -56,7 +56,7 @@ const choices = [
             />
           </svg>
         )}
-        <span class="sr-only">{choice.label}</span>
+        <span class="theme-choice-label">{choice.label}</span>
       </button>
     ))
   }
@@ -125,3 +125,32 @@ const choices = [
   initialiseThemeControls();
   document.addEventListener('astro:page-load', initialiseThemeControls);
 </script>
+
+<style>
+  .theme-choice-label {
+    font-size: 0.68rem;
+    font-weight: 630;
+    line-height: 1;
+  }
+
+  :global(.theme-control .icon-button) {
+    gap: 0.35rem;
+    padding-inline: 0.62rem;
+  }
+
+  @media (max-width: 69.99rem) {
+    .theme-choice-label {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    :global(.theme-control .icon-button) {
+      padding-inline: 0;
+    }
+  }
+</style>

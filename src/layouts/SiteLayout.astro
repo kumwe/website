@@ -1,9 +1,11 @@
 ---
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
+import SpaceBackdrop from '../components/SpaceBackdrop.astro';
 import { SITE } from '../data';
 import { defaultCatalogue } from '../i18n';
 import '../styles/global.css';
+import '../styles/mission.css';
 
 interface Props {
   title?: string;
@@ -29,7 +31,9 @@ const canonical = new URL(Astro.url.pathname, SITE.url);
     <meta name="description" content={description} />
     {noIndex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonical} />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png" />
+    <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Kumwe" />
     <meta property="og:title" content={title} />
@@ -57,6 +61,7 @@ const canonical = new URL(Astro.url.pathname, SITE.url);
     <slot name="head" />
   </head>
   <body>
+    <SpaceBackdrop class="site-space-backdrop" density="rich" variant="deep" />
     <a class="skip-link" href="#main-content">{defaultCatalogue.accessibility.skipToContent}</a>
     <SiteHeader currentPath={Astro.url.pathname} />
     <main class="page-main" id="main-content">

@@ -1,0 +1,868 @@
+---
+type MissionPageId =
+  'platform' | 'studio' | 'extensions' | 'clients' | 'packages' | 'roadmap' | 'open-source';
+
+interface Props {
+  pageId: MissionPageId;
+  class?: string;
+}
+
+const { pageId, class: className } = Astro.props;
+---
+
+<div
+  class:list={['mission-visual', className]}
+  data-mission={pageId}
+  aria-hidden="true"
+  role="presentation"
+>
+  <svg viewBox="0 0 680 480" preserveAspectRatio="xMidYMid meet" focusable="false">
+    <rect class="mission-visual__panel" x="18" y="18" width="644" height="444" rx="34"></rect>
+    <path class="mission-visual__corner" d="M51 92V54h42M629 388v38h-42"></path>
+    <path
+      class="mission-visual__grid"
+      d="M72 125H608M72 240H608M72 355H608M170 72v336M340 72v336M510 72v336"></path>
+
+    {
+      pageId === 'platform' && (
+        <g class="mission-platform">
+          <g class="mission-visual__rotate mission-visual__rotate--slow">
+            <ellipse class="mission-visual__orbit" cx="340" cy="242" rx="246" ry="148" />
+            <circle class="mission-visual__node mission-visual__node--hot" cx="340" cy="94" r="7" />
+            <circle class="mission-visual__node" cx="537" cy="153" r="6" />
+            <circle class="mission-visual__node" cx="572" cy="271" r="6" />
+            <circle class="mission-visual__node" cx="469" cy="370" r="6" />
+            <circle class="mission-visual__node" cx="211" cy="370" r="6" />
+            <circle class="mission-visual__node" cx="108" cy="271" r="6" />
+            <circle class="mission-visual__node" cx="143" cy="153" r="6" />
+          </g>
+          <g class="mission-visual__rotate mission-visual__rotate--reverse">
+            <ellipse
+              class="mission-visual__orbit mission-visual__orbit--dashed"
+              cx="340"
+              cy="242"
+              rx="184"
+              ry="202"
+            />
+          </g>
+          <path
+            class="mission-visual__stream"
+            d="M143 153 244 202M537 153 436 202M108 271l126-16M572 271l-126-16M211 370l69-74M469 370l-69-74M340 94v82"
+          />
+          <g class="mission-visual__float">
+            <path class="mission-visual__core-shell" d="m340 157 88 49v87l-88 49-88-49v-87Z" />
+            <path class="mission-platform__split" d="M340 158v184" />
+            <circle
+              class="mission-platform__half mission-platform__half--left"
+              cx="311"
+              cy="249"
+              r="46"
+            />
+            <circle
+              class="mission-platform__half mission-platform__half--right"
+              cx="369"
+              cy="249"
+              r="46"
+            />
+            <path
+              class="mission-visual__accent"
+              d="m300 248 11-11 11 11-11 11Zm58 0 11-11 11 11-11 11Z"
+            />
+            <circle class="mission-visual__pulse" cx="340" cy="249" r="10" />
+          </g>
+          <g class="mission-platform__surface-glyphs">
+            <path d="M326 74h28M326 82h18" />
+            <path d="m550 140 16 9-16 9" />
+            <rect x="559" y="259" width="25" height="18" rx="3" />
+            <path d="M457 390h26M470 377v26" />
+            <path d="M197 383h28v18h-28zM204 377v6M218 377v6" />
+            <path d="m95 258-12 13 12 13M120 258l12 13-12 13" />
+            <circle cx="126" cy="148" r="12" />
+            <path d="M126 136v24M114 148h24" />
+          </g>
+        </g>
+      )
+    }
+
+    {
+      pageId === 'studio' && (
+        <g class="mission-studio mission-visual__float">
+          <rect class="mission-studio__window" x="87" y="62" width="506" height="356" rx="22" />
+          <path class="mission-studio__bar" d="M87 113h506M143 113v305M481 113v305" />
+          <circle class="mission-studio__control" cx="111" cy="88" r="5" />
+          <circle class="mission-studio__control" cx="128" cy="88" r="5" />
+          <circle class="mission-studio__control" cx="145" cy="88" r="5" />
+          <path
+            class="mission-studio__tool"
+            d="M106 151h18v18h-18zM106 194h18M106 204h18M106 235l9-9 9 9-9 9Zm0 38h18v15h-18zM106 321h18M106 331h13"
+          />
+          <g class="mission-studio__canvas">
+            <rect x="172" y="142" width="278" height="48" rx="8" />
+            <rect x="172" y="207" width="132" height="80" rx="8" />
+            <rect x="318" y="207" width="132" height="80" rx="8" />
+            <rect class="mission-studio__selected" x="172" y="304" width="278" height="76" rx="8" />
+            <circle class="mission-studio__handle" cx="172" cy="304" r="4" />
+            <circle class="mission-studio__handle" cx="450" cy="304" r="4" />
+            <circle class="mission-studio__handle" cx="172" cy="380" r="4" />
+            <circle class="mission-studio__handle" cx="450" cy="380" r="4" />
+            <path d="M193 160h137M193 171h88M193 230h78M193 245h52M339 229h83M339 244h59M193 326h211M193 342h178M193 358h126" />
+          </g>
+          <g class="mission-studio__inspector">
+            <path d="M507 148h56M507 166h38M507 208h56M507 226h47M507 269h56M507 287h30M507 330h56M507 348h42" />
+            <rect x="507" y="181" width="56" height="10" rx="5" />
+            <rect x="507" y="242" width="56" height="10" rx="5" />
+            <rect x="507" y="303" width="56" height="10" rx="5" />
+          </g>
+          <rect class="mission-studio__scan" x="151" y="122" width="328" height="3" rx="2" />
+          <path class="mission-studio__cursor" d="m423 288 9 30 7-11 12 12 7-7-12-12 11-7Z" />
+          <circle class="mission-visual__pulse" cx="423" cy="288" r="7" />
+        </g>
+      )
+    }
+
+    {
+      pageId === 'extensions' && (
+        <g class="mission-extensions">
+          <path class="mission-extensions__rail mission-visual__stream" d="M86 243h506" />
+          <g class="mission-extensions__package mission-visual__float">
+            <path d="m91 193 60-32 60 32v93l-60 33-60-33Z" />
+            <path class="mission-visual__accent" d="m151 161 60 32-60 33-60-33M151 226v93" />
+            <path
+              class="mission-extensions__puzzle"
+              d="M132 241h13a10 10 0 1 1 12 0h14v16a10 10 0 1 1 0 12v14h-39Z"
+            />
+          </g>
+          <g class="mission-extensions__scanner mission-extensions__scanner--one">
+            <ellipse cx="269" cy="243" rx="34" ry="105" />
+            <circle
+              class="mission-visual__node mission-visual__node--hot"
+              cx="269"
+              cy="138"
+              r="6"
+            />
+            <path class="mission-extensions__check" d="m255 243 10 10 19-22" />
+          </g>
+          <g class="mission-extensions__scanner mission-extensions__scanner--two">
+            <ellipse cx="362" cy="243" rx="34" ry="124" />
+            <circle class="mission-visual__node" cx="362" cy="119" r="6" />
+            <path class="mission-extensions__check" d="m348 243 10 10 19-22" />
+          </g>
+          <g class="mission-extensions__scanner mission-extensions__scanner--three">
+            <ellipse cx="455" cy="243" rx="34" ry="105" />
+            <circle
+              class="mission-visual__node mission-visual__node--hot"
+              cx="455"
+              cy="138"
+              r="6"
+            />
+            <path class="mission-extensions__check" d="m441 243 10 10 19-22" />
+          </g>
+          <g class="mission-extensions__dock">
+            <circle cx="563" cy="243" r="69" />
+            <circle
+              class="mission-visual__orbit mission-visual__orbit--dashed mission-visual__rotate"
+              cx="563"
+              cy="243"
+              r="52"
+            />
+            <path class="mission-visual__core-shell" d="m563 202 36 20v42l-36 20-36-20v-42Z" />
+            <circle class="mission-visual__pulse" cx="563" cy="243" r="12" />
+          </g>
+          <path class="mission-extensions__telemetry" d="M246 381h46M339 400h46M432 381h46" />
+        </g>
+      )
+    }
+
+    {
+      pageId === 'clients' && (
+        <g class="mission-clients">
+          <path
+            class="mission-clients__earth"
+            d="M43 409c86-176 203-235 351-177 88 34 155 96 232 177"
+          />
+          <path
+            class="mission-clients__atmosphere"
+            d="M30 421c91-190 217-256 372-194 91 36 162 102 244 194"
+          />
+          <path
+            class="mission-clients__land"
+            d="m168 348 42-35 38 10 28-26 41 3 22 33-21 29-49 6-27 28-48-6Z"
+          />
+          <g class="mission-clients__hub">
+            <circle class="mission-visual__orbit mission-visual__rotate" cx="340" cy="213" r="69" />
+            <path class="mission-visual__core-shell" d="m340 161 46 26v52l-46 26-46-26v-52Z" />
+            <path
+              class="mission-clients__code"
+              d="m327 198-15 15 15 15M353 198l15 15-15 15M346 190l-12 46"
+            />
+            <circle class="mission-visual__pulse" cx="340" cy="213" r="7" />
+          </g>
+          <path
+            class="mission-visual__stream"
+            d="M292 185 145 117M388 185l147-68M284 231 143 272M396 231l141 41"
+          />
+          <g class="mission-clients__device mission-clients__device--phone mission-visual__float">
+            <rect x="112" y="78" width="64" height="103" rx="13" />
+            <path d="M127 95h34M132 156h24" />
+            <circle cx="144" cy="168" r="3" />
+          </g>
+          <g class="mission-clients__device mission-clients__device--tablet mission-visual__float">
+            <rect x="495" y="73" width="89" height="107" rx="12" />
+            <path d="M512 92h55M512 107h41M512 155h55" />
+          </g>
+          <g class="mission-clients__device mission-clients__device--terminal">
+            <rect x="91" y="239" width="104" height="69" rx="9" />
+            <path d="M113 261h58M113 276h39M131 308l-9 16M155 308l9 16M116 324h54" />
+          </g>
+          <g class="mission-clients__device mission-clients__device--native">
+            <path d="m506 235 76 13-11 67-76-13Z" />
+            <path d="m516 254 49 8M513 269l35 6M510 284l42 7" />
+          </g>
+          <g class="mission-clients__satellite mission-visual__float">
+            <rect x="318" y="58" width="44" height="20" rx="4" />
+            <path d="M318 63h-32v10h32M362 63h32v10h-32M340 78v24" />
+          </g>
+        </g>
+      )
+    }
+
+    {
+      pageId === 'packages' && (
+        <g class="mission-packages">
+          <g class="mission-visual__rotate mission-visual__rotate--slow">
+            <circle
+              class="mission-visual__orbit mission-visual__orbit--dashed"
+              cx="340"
+              cy="241"
+              r="179"
+            />
+            <circle class="mission-visual__node" cx="340" cy="62" r="7" />
+            <circle class="mission-visual__node" cx="495" cy="151" r="7" />
+            <circle class="mission-visual__node" cx="495" cy="331" r="7" />
+            <circle class="mission-visual__node" cx="340" cy="420" r="7" />
+            <circle class="mission-visual__node" cx="185" cy="331" r="7" />
+            <circle class="mission-visual__node" cx="185" cy="151" r="7" />
+          </g>
+          <ellipse class="mission-visual__orbit" cx="340" cy="241" rx="268" ry="91" />
+          <path class="mission-packages__spine" d="M112 241h456" />
+          <g class="mission-packages__bay mission-packages__bay--one mission-visual__float">
+            <path d="m135 190 55 31v62l-55 31-55-31v-62Z" />
+            <path d="M103 237h64M103 253h64M135 207v90" />
+            <circle class="mission-visual__pulse" cx="135" cy="252" r="8" />
+          </g>
+          <g class="mission-packages__bay mission-packages__bay--two mission-visual__float">
+            <path class="mission-visual__core-shell" d="m340 164 68 39v77l-68 39-68-39v-77Z" />
+            <path d="m309 211 31-18 31 18v36l-31 18-31-18ZM340 265v35M309 229h-24M371 229h24" />
+            <circle class="mission-visual__pulse" cx="340" cy="229" r="9" />
+          </g>
+          <g class="mission-packages__bay mission-packages__bay--three mission-visual__float">
+            <path d="m545 190 55 31v62l-55 31-55-31v-62Z" />
+            <path d="m513 222 32-18 32 18v37l-32 18-32-18ZM545 277v20" />
+            <circle class="mission-visual__pulse" cx="545" cy="241" r="8" />
+          </g>
+          <path class="mission-visual__stream" d="M190 252h82M408 241h82" />
+          <g class="mission-packages__pods">
+            <rect x="98" y="105" width="73" height="28" rx="10" />
+            <rect x="201" y="74" width="73" height="28" rx="10" />
+            <rect x="406" y="74" width="73" height="28" rx="10" />
+            <rect x="509" y="105" width="73" height="28" rx="10" />
+            <rect x="98" y="349" width="73" height="28" rx="10" />
+            <rect x="509" y="349" width="73" height="28" rx="10" />
+          </g>
+        </g>
+      )
+    }
+
+    {
+      pageId === 'roadmap' && (
+        <g class="mission-roadmap">
+          <path
+            class="mission-roadmap__trajectory mission-visual__stream"
+            d="M78 388C142 346 168 302 211 276c61-37 96-2 145-43 43-36 63-91 111-116 40-21 78-23 137-31"
+          />
+          <path
+            class="mission-roadmap__parallel"
+            d="M207 277c44 19 62 56 107 54 46-2 76-47 111-83"
+          />
+          <path
+            class="mission-roadmap__parallel"
+            d="M207 277c40-21 57-61 99-69 38-7 79 23 119 40"
+          />
+          <g
+            class="mission-roadmap__checkpoint mission-roadmap__checkpoint--passed"
+            transform="translate(113 355)"
+          >
+            <circle r="27" />
+            <circle class="mission-visual__pulse" r="9" />
+            <path d="m-10 0 7 7 14-17" />
+          </g>
+          <g class="mission-roadmap__checkpoint" transform="translate(211 276)">
+            <circle r="24" />
+            <circle class="mission-visual__node mission-visual__node--hot" r="7" />
+          </g>
+          <g class="mission-roadmap__checkpoint" transform="translate(356 233)">
+            <circle r="24" />
+            <circle class="mission-visual__node" r="7" />
+          </g>
+          <g class="mission-roadmap__checkpoint" transform="translate(467 117)">
+            <circle r="24" />
+            <circle class="mission-visual__node" r="7" />
+          </g>
+          <g class="mission-roadmap__checkpoint" transform="translate(584 90)">
+            <circle r="24" />
+            <circle class="mission-visual__node" r="7" />
+          </g>
+          <g class="mission-roadmap__ticks">
+            <path d="M88 393v29M187 288v32M332 244v31M443 127v32M560 99v28" />
+            <path d="M75 422h64M174 320h74M319 275h74M430 159h74M547 127h74" />
+          </g>
+          <g
+            class="mission-roadmap__craft mission-visual__float"
+            transform="translate(587 86) rotate(-12)"
+          >
+            <path d="m0-14 26 14L0 14l6-14Z" />
+            <path class="mission-roadmap__thrust" d="M0 0h-34" />
+          </g>
+          <circle class="mission-roadmap__signal" cx="316" cy="331" r="5" />
+          <circle class="mission-roadmap__signal" cx="306" cy="208" r="5" />
+        </g>
+      )
+    }
+
+    {
+      pageId === 'open-source' && (
+        <g class="mission-open-source">
+          <g class="mission-visual__rotate mission-visual__rotate--reverse">
+            <circle class="mission-open-source__boundary" cx="340" cy="240" r="188" />
+            <circle class="mission-visual__node" cx="340" cy="52" r="7" />
+            <circle class="mission-visual__node" cx="503" cy="146" r="7" />
+            <circle class="mission-visual__node" cx="503" cy="334" r="7" />
+            <circle class="mission-visual__node" cx="340" cy="428" r="7" />
+            <circle class="mission-visual__node" cx="177" cy="334" r="7" />
+            <circle class="mission-visual__node" cx="177" cy="146" r="7" />
+          </g>
+          <g class="mission-open-source__rays">
+            <path d="M340 87v69M473 164l-70 54M473 316l-70-54M340 393v-69M207 316l70-54M207 164l70 54" />
+          </g>
+          <g class="mission-open-source__aperture mission-visual__rotate mission-visual__rotate--slow">
+            <path d="M340 118a122 122 0 0 1 106 61l-61 35a52 52 0 0 0-45-26Z" />
+            <path d="M446 179a122 122 0 0 1 0 122l-61-35a52 52 0 0 0 0-52Z" />
+            <path d="M446 301a122 122 0 0 1-106 61v-70a52 52 0 0 0 45-26Z" />
+            <path d="M340 362a122 122 0 0 1-106-61l61-35a52 52 0 0 0 45 26Z" />
+            <path d="M234 301a122 122 0 0 1 0-122l61 35a52 52 0 0 0 0 52Z" />
+            <path d="M234 179a122 122 0 0 1 106-61v70a52 52 0 0 0-45 26Z" />
+          </g>
+          <g class="mission-open-source__shield mission-visual__float">
+            <path
+              class="mission-visual__core-shell"
+              d="M340 176c24 17 51 21 71 22v51c0 40-27 67-71 87-44-20-71-47-71-87v-51c20-1 47-5 71-22Z"
+            />
+            <path
+              class="mission-open-source__open"
+              d="M326 231c-20 0-31 13-31 29s11 29 31 29M354 231c20 0 31 13 31 29s-11 29-31 29"
+            />
+            <circle class="mission-visual__pulse" cx="340" cy="260" r="9" />
+          </g>
+          <g class="mission-open-source__licence">
+            <rect x="298" y="365" width="84" height="28" rx="14" />
+            <path d="M318 379h44" />
+          </g>
+        </g>
+      )
+    }
+  </svg>
+</div>
+
+<style>
+  .mission-visual {
+    --mission-accent-a: #50d8ff;
+    --mission-accent-b: #30d9c6;
+    --mission-panel-high: rgb(10 30 53 / 86%);
+    --mission-panel-low: rgb(3 13 28 / 52%);
+    --mission-line: rgb(111 207 238 / 23%);
+    --mission-line-strong: rgb(91 221 255 / 57%);
+    --mission-ink: #dff8ff;
+    --mission-muted: rgb(177 219 233 / 48%);
+    aspect-ratio: 17 / 12;
+    contain: layout paint style;
+    display: block;
+    isolation: isolate;
+    min-height: 17rem;
+    overflow: hidden;
+    pointer-events: none;
+    position: relative;
+    user-select: none;
+    width: 100%;
+  }
+
+  .mission-visual[data-mission='studio'] {
+    --mission-accent-a: #4fdcff;
+    --mission-accent-b: #9a79ff;
+  }
+
+  .mission-visual[data-mission='extensions'] {
+    --mission-accent-a: #52e5d0;
+    --mission-accent-b: #5dbdff;
+  }
+
+  .mission-visual[data-mission='clients'] {
+    --mission-accent-a: #5bcfff;
+    --mission-accent-b: #7f8fff;
+  }
+
+  .mission-visual[data-mission='packages'] {
+    --mission-accent-a: #45e2dc;
+    --mission-accent-b: #54a9ff;
+  }
+
+  .mission-visual[data-mission='roadmap'] {
+    --mission-accent-a: #59ddff;
+    --mission-accent-b: #ffbf65;
+  }
+
+  .mission-visual[data-mission='open-source'] {
+    --mission-accent-a: #42e3d0;
+    --mission-accent-b: #52c7ff;
+  }
+
+  .mission-visual::before {
+    background:
+      radial-gradient(
+        circle at 68% 28%,
+        color-mix(in srgb, var(--mission-accent-a), transparent 78%),
+        transparent 33%
+      ),
+      radial-gradient(
+        circle at 24% 72%,
+        color-mix(in srgb, var(--mission-accent-b), transparent 86%),
+        transparent 36%
+      );
+    content: '';
+    inset: 0;
+    position: absolute;
+  }
+
+  .mission-visual svg {
+    display: block;
+    height: 100%;
+    overflow: visible;
+    position: relative;
+    width: 100%;
+  }
+
+  .mission-visual__panel {
+    fill: var(--mission-panel-high);
+    fill-opacity: 0.78;
+    stroke: var(--mission-line);
+    stroke-width: 1.2;
+  }
+
+  .mission-visual__corner {
+    fill: none;
+    stroke: var(--mission-line-strong);
+    stroke-linecap: round;
+    stroke-width: 1.5;
+  }
+
+  .mission-visual__grid {
+    fill: none;
+    opacity: 0.24;
+    stroke: var(--mission-line);
+    stroke-width: 0.8;
+  }
+
+  .mission-visual__orbit,
+  .mission-visual__stream,
+  .mission-visual__core-shell {
+    fill: none;
+    stroke: var(--mission-line-strong);
+    stroke-width: 1.5;
+  }
+
+  .mission-visual__orbit--dashed {
+    stroke-dasharray: 5 12;
+  }
+
+  .mission-visual__stream {
+    animation: mission-flow 8s linear infinite;
+    stroke-dasharray: 4 10;
+  }
+
+  .mission-visual__core-shell {
+    fill: var(--mission-accent-a);
+    fill-opacity: 0.11;
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--mission-accent-a), transparent 45%));
+  }
+
+  .mission-visual__accent {
+    fill: none;
+    stroke: var(--mission-accent-a);
+    stroke-width: 2;
+  }
+
+  .mission-visual__node {
+    fill: var(--mission-panel-high);
+    stroke: var(--mission-line-strong);
+    stroke-width: 2;
+  }
+
+  .mission-visual__node--hot,
+  .mission-visual__pulse {
+    fill: var(--mission-accent-a);
+    filter: drop-shadow(0 0 5px color-mix(in srgb, var(--mission-accent-a), transparent 30%));
+  }
+
+  .mission-visual__pulse {
+    animation: mission-pulse 3.2s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .mission-visual__rotate {
+    animation: mission-rotate 22s linear infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .mission-visual__rotate--slow {
+    animation-duration: 34s;
+  }
+
+  .mission-visual__rotate--reverse {
+    animation-direction: reverse;
+    animation-duration: 31s;
+  }
+
+  .mission-visual__float {
+    animation: mission-float 7s ease-in-out infinite;
+  }
+
+  .mission-platform__split,
+  .mission-platform__surface-glyphs,
+  .mission-studio__bar,
+  .mission-studio__tool,
+  .mission-studio__canvas,
+  .mission-studio__inspector,
+  .mission-extensions__telemetry,
+  .mission-clients__device,
+  .mission-clients__satellite,
+  .mission-packages__bay,
+  .mission-packages__pods,
+  .mission-roadmap__ticks,
+  .mission-open-source__rays,
+  .mission-open-source__licence {
+    fill: none;
+    stroke: var(--mission-muted);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.5;
+  }
+
+  .mission-platform__half {
+    fill: color-mix(in srgb, var(--mission-accent-a), transparent 88%);
+    stroke: var(--mission-accent-a);
+    stroke-opacity: 0.48;
+  }
+
+  .mission-platform__half--right {
+    fill: color-mix(in srgb, var(--mission-accent-b), transparent 88%);
+    stroke: var(--mission-accent-b);
+  }
+
+  .mission-studio__window,
+  .mission-studio__canvas rect,
+  .mission-studio__inspector rect,
+  .mission-clients__device rect,
+  .mission-clients__device path:first-child,
+  .mission-packages__pods rect,
+  .mission-open-source__licence rect {
+    fill: color-mix(in srgb, var(--mission-panel-high), transparent 8%);
+    stroke: var(--mission-line-strong);
+    stroke-width: 1.2;
+  }
+
+  .mission-studio__control,
+  .mission-studio__handle {
+    fill: var(--mission-accent-a);
+  }
+
+  .mission-studio__selected {
+    fill: color-mix(in srgb, var(--mission-accent-b), transparent 91%) !important;
+    stroke: var(--mission-accent-b) !important;
+    stroke-dasharray: 6 5;
+  }
+
+  .mission-studio__scan {
+    animation: mission-scan 5.5s ease-in-out infinite;
+    fill: var(--mission-accent-a);
+    filter: drop-shadow(0 0 5px color-mix(in srgb, var(--mission-accent-a), transparent 35%));
+    opacity: 0.75;
+  }
+
+  .mission-studio__cursor {
+    animation: mission-cursor 7s ease-in-out infinite;
+    fill: var(--mission-ink);
+    stroke: var(--mission-panel-high);
+    stroke-width: 2;
+  }
+
+  .mission-extensions__package > path:first-child,
+  .mission-packages__bay > path:first-child {
+    fill: color-mix(in srgb, var(--mission-accent-a), transparent 91%);
+    stroke: var(--mission-line-strong);
+    stroke-width: 1.5;
+  }
+
+  .mission-extensions__puzzle,
+  .mission-extensions__check,
+  .mission-extensions__scanner ellipse,
+  .mission-extensions__dock > circle:first-child,
+  .mission-clients__code,
+  .mission-clients__earth,
+  .mission-clients__atmosphere,
+  .mission-clients__land,
+  .mission-packages__spine,
+  .mission-roadmap__trajectory,
+  .mission-roadmap__parallel,
+  .mission-roadmap__checkpoint,
+  .mission-open-source__boundary,
+  .mission-open-source__aperture,
+  .mission-open-source__shield,
+  .mission-open-source__open {
+    fill: none;
+    stroke: var(--mission-line-strong);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.6;
+  }
+
+  .mission-extensions__scanner {
+    animation: mission-scanner 4.8s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .mission-extensions__scanner--two {
+    animation-delay: -1.6s;
+  }
+
+  .mission-extensions__scanner--three {
+    animation-delay: -3.2s;
+  }
+
+  .mission-extensions__check,
+  .mission-clients__code,
+  .mission-open-source__open {
+    stroke: var(--mission-accent-a);
+    stroke-width: 2.3;
+  }
+
+  .mission-clients__earth {
+    fill: color-mix(in srgb, var(--mission-accent-a), transparent 93%);
+    stroke-width: 2;
+  }
+
+  .mission-clients__atmosphere {
+    filter: drop-shadow(0 0 5px color-mix(in srgb, var(--mission-accent-a), transparent 32%));
+    opacity: 0.7;
+    stroke: var(--mission-accent-a);
+    stroke-width: 3;
+  }
+
+  .mission-clients__land {
+    fill: color-mix(in srgb, var(--mission-accent-b), transparent 80%);
+    opacity: 0.5;
+  }
+
+  .mission-packages__bay--two {
+    animation-delay: -2.3s;
+  }
+
+  .mission-packages__bay--three {
+    animation-delay: -4.6s;
+  }
+
+  .mission-roadmap__trajectory {
+    stroke: var(--mission-accent-a);
+    stroke-width: 2.4;
+  }
+
+  .mission-roadmap__parallel {
+    opacity: 0.6;
+    stroke-dasharray: 4 7;
+  }
+
+  .mission-roadmap__checkpoint > circle:first-child {
+    fill: var(--mission-panel-high);
+    stroke: var(--mission-line-strong);
+  }
+
+  .mission-roadmap__checkpoint--passed > circle:first-child {
+    fill: color-mix(in srgb, var(--mission-accent-b), transparent 84%);
+    stroke: var(--mission-accent-b);
+  }
+
+  .mission-roadmap__checkpoint path,
+  .mission-roadmap__craft path:first-child {
+    fill: none;
+    stroke: var(--mission-ink);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+  }
+
+  .mission-roadmap__craft path:first-child {
+    fill: var(--mission-accent-a);
+    stroke: var(--mission-accent-a);
+  }
+
+  .mission-roadmap__thrust {
+    animation: mission-thrust 1.8s ease-in-out infinite;
+    stroke: var(--mission-accent-b);
+    stroke-width: 3;
+  }
+
+  .mission-roadmap__signal {
+    animation: mission-pulse 2.8s ease-in-out infinite;
+    fill: var(--mission-accent-b);
+  }
+
+  .mission-open-source__boundary {
+    stroke-dasharray: 4 9;
+  }
+
+  .mission-open-source__aperture path {
+    fill: color-mix(in srgb, var(--mission-accent-a), transparent 90%);
+    stroke: var(--mission-line-strong);
+    stroke-width: 1.3;
+  }
+
+  .mission-open-source__licence rect {
+    fill: color-mix(in srgb, var(--mission-accent-b), transparent 86%);
+  }
+
+  :global(html[data-theme='light']) .mission-visual {
+    --mission-panel-high: rgb(255 255 255 / 88%);
+    --mission-panel-low: rgb(218 238 247 / 62%);
+    --mission-line: rgb(7 93 132 / 18%);
+    --mission-line-strong: rgb(0 112 153 / 48%);
+    --mission-ink: #123c52;
+    --mission-muted: rgb(20 82 108 / 47%);
+  }
+
+  :global(html[data-theme='light']) .mission-visual[data-mission='studio'] {
+    --mission-accent-b: #7353cf;
+  }
+
+  :global(html[data-theme='light']) .mission-visual[data-mission='roadmap'] {
+    --mission-accent-b: #b36a00;
+  }
+
+  @keyframes mission-flow {
+    to {
+      stroke-dashoffset: -84;
+    }
+  }
+
+  @keyframes mission-pulse {
+    0%,
+    100% {
+      opacity: 0.5;
+      transform: scale(0.78);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.24);
+    }
+  }
+
+  @keyframes mission-rotate {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes mission-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+
+  @keyframes mission-scan {
+    0%,
+    100% {
+      opacity: 0;
+      transform: translateY(0);
+    }
+    12%,
+    88% {
+      opacity: 0.72;
+    }
+    50% {
+      transform: translateY(284px);
+    }
+  }
+
+  @keyframes mission-cursor {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    45% {
+      transform: translate(-64px, 39px);
+    }
+    70% {
+      transform: translate(-35px, 62px);
+    }
+  }
+
+  @keyframes mission-scanner {
+    0%,
+    100% {
+      opacity: 0.46;
+      transform: scale(0.96);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.03);
+    }
+  }
+
+  @keyframes mission-thrust {
+    0%,
+    100% {
+      opacity: 0.3;
+      stroke-dasharray: 8 12;
+      stroke-dashoffset: 0;
+    }
+    50% {
+      opacity: 1;
+      stroke-dashoffset: 20;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .mission-visual {
+      min-height: 14rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mission-visual *,
+    .mission-visual *::before,
+    .mission-visual *::after {
+      animation: none !important;
+    }
+
+    .mission-visual__pulse,
+    .mission-studio__scan,
+    .mission-roadmap__signal {
+      opacity: 0.8;
+      transform: none;
+    }
+  }
+</style>

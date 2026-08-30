@@ -1,0 +1,102 @@
+---
+interface Props {
+  class?: string;
+  href?: string;
+  label?: string;
+}
+
+const {
+  class: className,
+  href = '/open-source/',
+  label = 'Open source · Apache 2.0',
+} = Astro.props;
+---
+
+<a class:list={['open-source-shield', className]} href={href} aria-label={label}>
+  <span class="open-source-shield__icon" aria-hidden="true">
+    <svg viewBox="0 0 24 28" width="24" height="28">
+      <path d="M12 1.75 21 5.4v7.15c0 6.08-3.75 10.85-9 13.7-5.25-2.85-9-7.62-9-13.7V5.4L12 1.75Z"
+      ></path>
+      <path d="m8.25 13.15 2.35 2.35 5.3-5.55"></path>
+    </svg>
+  </span>
+  <span>{label}</span>
+</a>
+
+<style>
+  .open-source-shield {
+    align-items: center;
+    color: var(--text, #f4f8fc);
+    display: inline-flex;
+    font-size: 0.92rem;
+    font-weight: 520;
+    gap: 0.72rem;
+    line-height: 1.2;
+    text-decoration: none;
+    width: fit-content;
+  }
+
+  .open-source-shield__icon {
+    align-items: center;
+    color: var(--teal, #31dac7);
+    display: inline-flex;
+    filter: drop-shadow(0 0 0.7rem color-mix(in srgb, currentColor, transparent 40%));
+    flex: 0 0 auto;
+    justify-content: center;
+    position: relative;
+  }
+
+  .open-source-shield__icon::after {
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    content: '';
+    inset: 23% 15%;
+    opacity: 0;
+    position: absolute;
+    animation: shield-signal 3.6s ease-out infinite;
+  }
+
+  .open-source-shield svg {
+    overflow: visible;
+  }
+
+  .open-source-shield path {
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.55;
+  }
+
+  .open-source-shield:hover {
+    color: var(--accent, #50d8ff);
+  }
+
+  .open-source-shield:hover .open-source-shield__icon {
+    color: var(--accent, #50d8ff);
+  }
+
+  @keyframes shield-signal {
+    0%,
+    58% {
+      opacity: 0;
+      scale: 0.5;
+    }
+
+    68% {
+      opacity: 0.42;
+    }
+
+    88%,
+    100% {
+      opacity: 0;
+      scale: 1.8;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .open-source-shield__icon::after {
+      animation: none;
+    }
+  }
+</style>

@@ -1,0 +1,45 @@
+---
+interface Props {
+  /** Accessible name for the wordmark. Use an empty string when the parent link is already labelled. */
+  alt?: string;
+  /** Renders the wordmark at the smaller navigation-friendly size. */
+  compact?: boolean;
+  /** Allows callers to add a layout-specific class without changing the canonical image treatment. */
+  class?: string;
+  /** Header instances should stay eager; below-the-fold instances can opt into lazy loading. */
+  loading?: 'eager' | 'lazy';
+}
+
+const { alt = 'Kumwe', compact = false, class: className, loading = 'eager' } = Astro.props;
+
+const width = compact ? 128 : 176;
+const height = compact ? 50 : 69;
+const sizes = compact ? '128px' : '(max-width: 40rem) 144px, 176px';
+---
+
+<img
+  class:list={['brand-logo', { 'brand-logo--compact': compact }, className]}
+  src="/brand/kumwe-wordmark-255x100.png"
+  srcset="/brand/kumwe-wordmark-255x100.png 255w, /brand/kumwe-wordmark-1276x500.png 1276w"
+  {sizes}
+  {width}
+  {height}
+  {alt}
+  {loading}
+  decoding="async"
+  fetchpriority={loading === 'eager' ? 'high' : 'auto'}
+/>
+
+<style>
+  .brand-logo {
+    display: block;
+    inline-size: 11rem;
+    max-inline-size: 100%;
+    block-size: auto;
+    object-fit: contain;
+  }
+
+  .brand-logo--compact {
+    inline-size: 8rem;
+  }
+</style>

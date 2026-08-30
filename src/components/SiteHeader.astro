@@ -1,6 +1,7 @@
 ---
 import { PRIMARY_NAVIGATION, UTILITY_NAVIGATION } from '../data';
 import { defaultCatalogue } from '../i18n';
+import BrandLogo from './BrandLogo.astro';
 import LanguageControl from './LanguageControl.astro';
 import ThemeControl from './ThemeControl.astro';
 
@@ -19,8 +20,7 @@ const isCurrent = (href: string) =>
 <header class="site-header" data-site-header>
   <div class="container header-inner">
     <a class="brand" href="/" aria-label={`${defaultCatalogue.site.title} — ${navigation.home}`}>
-      <img class="brand-mark" src="/brand/kumwe-symbol.svg" width="42" height="42" alt="" />
-      <img class="brand-word" src="/brand/kumwe-wordmark.svg" width="140" height="40" alt="Kumwe" />
+      <BrandLogo compact alt="" />
     </a>
 
     <nav

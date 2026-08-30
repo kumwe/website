@@ -1,5 +1,6 @@
 ---
-import { pages, type PageId } from '../data';
+import MissionVisual from '../components/MissionVisual.astro';
+import { MISSION_VISUALS, pages, type PageId } from '../data';
 import { defaultCatalogue } from '../i18n';
 import type { SectionCopy } from '../i18n/types';
 import SiteLayout from './SiteLayout.astro';
@@ -11,82 +12,148 @@ interface Props {
 const { pageId } = Astro.props;
 const copy = defaultCatalogue.pages[pageId];
 const page = pages[pageId];
+const visual = MISSION_VISUALS[pageId];
 const sections = copy.sections as readonly SectionCopy[];
 const isExternal = (href: string) => href.startsWith('http');
+const destinationArrow = (href: string) => (isExternal(href) ? '↗' : '→');
 ---
 
 <SiteLayout title={copy.metaTitle} description={copy.metaDescription}>
-  <header class="page-hero">
-    <div class="container page-hero-content">
-      <span class="eyebrow">{copy.hero.eyebrow}</span>
-      <h1>{copy.hero.title}</h1>
-      <p class="hero-summary">{copy.hero.summary}</p>
-      <div class="hero-actions">
-        <a
-          class="button button-primary"
-          href={page.primaryActionHref}
-          target={isExternal(page.primaryActionHref) ? '_blank' : undefined}
-          rel={isExternal(page.primaryActionHref) ? 'noreferrer' : undefined}
-        >
-          {copy.hero.primaryAction.label}
-          <span aria-hidden="true">↗</span>
-        </a>
-        <a
-          class="button button-secondary"
-          href={page.secondaryActionHref}
-          target={isExternal(page.secondaryActionHref) ? '_blank' : undefined}
-          rel={isExternal(page.secondaryActionHref) ? 'noreferrer' : undefined}
-        >
-          {copy.hero.secondaryAction.label}
-        </a>
+  <article
+    class:list={['mission-page', `mission-page--${pageId}`]}
+    data-page-motif={visual.motif}
+    style={`--mission-accent:${visual.accent};--mission-secondary:${visual.secondaryAccent}`}
+  >
+    <header class="mission-hero">
+      <div class="mission-hero__horizon" aria-hidden="true"></div>
+      <div class="container mission-hero__grid">
+        <div class="mission-hero__copy">
+          <div class="mission-hero__identity">
+            <span class="home-eyebrow">{copy.hero.eyebrow}</span>
+            <span class="mission-code">{visual.code}</span>
+          </div>
+          <h1>{copy.hero.title}</h1>
+          <p class="hero-summary">{copy.hero.summary}</p>
+          <div class="hero-actions">
+            <a
+              class="button button-primary"
+              href={page.primaryActionHref}
+              target={isExternal(page.primaryActionHref) ? '_blank' : undefined}
+              rel={isExternal(page.primaryActionHref) ? 'noreferrer' : undefined}
+            >
+              {copy.hero.primaryAction.label}
+              <span aria-hidden="true">{destinationArrow(page.primaryActionHref)}</span>
+            </a>
+            <a
+              class="button button-secondary"
+              href={page.secondaryActionHref}
+              target={isExternal(page.secondaryActionHref) ? '_blank' : undefined}
+              rel={isExternal(page.secondaryActionHref) ? 'noreferrer' : undefined}
+            >
+              {copy.hero.secondaryAction.label}
+              <span aria-hidden="true">{destinationArrow(page.secondaryActionHref)}</span>
+            </a>
+          </div>
+          {
+            copy.hero.status && (
+              <div class="mission-status">
+                <span class="mission-status__pulse" aria-hidden="true" />
+                <span>
+                  <small>MISSION STATUS</small>
+                  <strong>{copy.hero.status}</strong>
+                </span>
+              </div>
+            )
+          }
+        </div>
+
+        <div class="mission-hero__visual" data-page-hero-visual>
+          <div class="mission-hero__frame-corners" aria-hidden="true"></div>
+          <MissionVisual pageId={pageId} />
+          <div class="mission-telemetry" aria-hidden="true">
+            {
+              visual.telemetry.map((label, index) => (
+                <span>
+                  <i>0{index + 1}</i>
+                  {label}
+                </span>
+              ))
+            }
+          </div>
+        </div>
       </div>
+      <div class="container mission-hero__baseline" aria-hidden="true">
+        <span>KUMWE SYSTEMS</span><i></i><span>ORBITAL LINK · NOMINAL</span>
+      </div>
+    </header>
+
+    <div class="container mission-storyline">
       {
-        copy.hero.status && (
-          <span class="status-pill" style="margin-block-start: 2rem;">
-            <span class="status-dot" />
-            {copy.hero.status}
-          </span>
-        )
+        sections.map((section, index) => (
+          <section
+            class:list={['mission-story', index % 2 === 1 && 'mission-story--reverse']}
+            aria-labelledby={`${pageId}-section-${index}`}
+            data-visual-story
+          >
+            <div class="mission-story__instrument" aria-hidden="true">
+              <span class="mission-story__number">0{index + 1}</span>
+              <div class="mission-story__radar">
+                <>
+                  <span />
+                  <span />
+                  <span />
+                  <i />
+                </>
+              </div>
+              <div class="mission-story__readout">
+                <span>{visual.telemetry[index % visual.telemetry.length]}</span>
+                <strong>{index === 0 ? 'ONLINE' : index === 1 ? 'LINKED' : 'VERIFIED'}</strong>
+              </div>
+            </div>
+
+            <div class="mission-story__copy">
+              {section.eyebrow && <span class="section-kicker">{section.eyebrow}</span>}
+              <h2 id={`${pageId}-section-${index}`}>{section.title}</h2>
+              <p class="section-lead">{section.body}</p>
+              {section.note && <p class="mission-note">{section.note}</p>}
+              {section.items && (
+                <div class="mission-feature-grid">
+                  {section.items.map((item, itemIndex) => (
+                    <article class="mission-feature">
+                      <span class="mission-feature__index">
+                        {index + 1}.{itemIndex + 1}
+                      </span>
+                      {item.eyebrow && <span class="section-kicker">{item.eyebrow}</span>}
+                      <h3>{item.title}</h3>
+                      <p>{item.description}</p>
+                      <span class="mission-feature__signal" aria-hidden="true" />
+                    </article>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+        ))
       }
     </div>
-  </header>
 
-  <div class="container">
+    <slot />
+
     {
-      sections.map((section, index) => (
-        <section class="content-section" aria-labelledby={`${pageId}-section-${index}`}>
+      copy.closing && (
+        <section class="container mission-closing" aria-labelledby={`${pageId}-closing`}>
+          <div class="mission-closing__signal" aria-hidden="true">
+            <>
+              <span />
+              <span />
+              <span />
+            </>
+          </div>
           <div>
-            {section.eyebrow && <span class="section-kicker">{section.eyebrow}</span>}
-            <h2 id={`${pageId}-section-${index}`}>{section.title}</h2>
+            <span class="section-kicker">NEXT TRANSMISSION</span>
+            <h2 id={`${pageId}-closing`}>{copy.closing.title}</h2>
+            <p>{copy.closing.body}</p>
           </div>
-          <div class="content-section-copy">
-            <p>{section.body}</p>
-            {section.note && <p class="content-section-note">{section.note}</p>}
-            {section.items && (
-              <div class="feature-list">
-                {section.items.map((item) => (
-                  <article class="feature-item">
-                    {item.eyebrow && <span class="section-kicker">{item.eyebrow}</span>}
-                    <h3>{item.title}</h3>
-                    <p>{item.description}</p>
-                  </article>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-      ))
-    }
-  </div>
-
-  <slot />
-
-  {
-    copy.closing && (
-      <section class="container closing-panel" aria-labelledby={`${pageId}-closing`}>
-        <h2 id={`${pageId}-closing`}>{copy.closing.title}</h2>
-        <p>{copy.closing.body}</p>
-        <div class="section-actions">
           <a
             class="button button-primary"
             href={page.primaryActionHref}
@@ -94,10 +161,10 @@ const isExternal = (href: string) => href.startsWith('http');
             rel={isExternal(page.primaryActionHref) ? 'noreferrer' : undefined}
           >
             {copy.closing.action.label}
-            <span aria-hidden="true">↗</span>
+            <span aria-hidden="true">{destinationArrow(page.primaryActionHref)}</span>
           </a>
-        </div>
-      </section>
-    )
-  }
+        </section>
+      )
+    }
+  </article>
 </SiteLayout>

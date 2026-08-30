@@ -1,0 +1,348 @@
+---
+type ProductIcon = 'core' | 'studio' | 'extension' | 'clients';
+
+interface ProductDockItem {
+  readonly description: string;
+  readonly href: string;
+  readonly icon: ProductIcon;
+  readonly title: string;
+}
+
+interface Props {
+  class?: string;
+  heading?: string;
+  items?: readonly ProductDockItem[];
+}
+
+const approvedItems = [
+  {
+    title: 'App Core',
+    description: 'The secure foundation for content, data and workflows.',
+    href: '/platform/',
+    icon: 'core',
+  },
+  {
+    title: 'Studio',
+    description: 'Compose, model and manage experiences with confidence.',
+    href: '/studio/',
+    icon: 'studio',
+  },
+  {
+    title: 'Extension SDK',
+    description: 'Build powerful extensions that integrate seamlessly.',
+    href: '/extensions/',
+    icon: 'extension',
+  },
+  {
+    title: 'Dart SDK + Clients',
+    description: 'Type-safe SDK and clients for every surface.',
+    href: '/clients/',
+    icon: 'clients',
+  },
+] as const satisfies readonly ProductDockItem[];
+
+const {
+  class: className,
+  heading = 'Built to move together.',
+  items = approvedItems,
+} = Astro.props;
+---
+
+<section class:list={['product-dock', className]} aria-labelledby="product-dock-heading">
+  <div class="product-dock__orbit" aria-hidden="true">
+    <span></span>
+  </div>
+  <h2 id="product-dock-heading">{heading}</h2>
+  <div class="product-dock__grid">
+    {
+      items.map((item) => (
+        <a class:list={['product-card', `product-card--${item.icon}`]} href={item.href}>
+          <span class="product-card__icon" aria-hidden="true">
+            {item.icon === 'core' && (
+              <svg viewBox="0 0 48 48">
+                <path d="m24 6 8.3 4.8v9.6L24 25.2l-8.3-4.8v-9.6L24 6Z" />
+                <path d="m13.2 23.2 8.3 4.8v9.6l-8.3 4.8-8.3-4.8V28l8.3-4.8Zm21.6 0 8.3 4.8v9.6l-8.3 4.8-8.3-4.8V28l8.3-4.8ZM24 25.2V16m-10.8 7.2 5.2-3m16.4 3.1-5.2-3.1" />
+              </svg>
+            )}
+            {item.icon === 'studio' && (
+              <svg viewBox="0 0 48 48">
+                <path d="m24 4.8 18 10.4v17.6L24 43.2 6 32.8V15.2L24 4.8Z" />
+                <path d="m24 13.2 10.7 6.2v12.3L24 37.9l-10.7-6.2V19.4L24 13.2Zm-10.7 6.2L24 25.6l10.7-6.2M24 25.6v12.3" />
+              </svg>
+            )}
+            {item.icon === 'extension' && (
+              <svg viewBox="0 0 48 48">
+                <path d="M19.2 5.5h9.6v7.2a5.5 5.5 0 1 1 7.2 7.2h7.2v9.6H36a5.5 5.5 0 1 1-7.2 7.2v7.2h-9.6v-7.2a5.5 5.5 0 1 1-7.2-7.2H4.8v-9.6H12a5.5 5.5 0 1 1 7.2-7.2V5.5Z" />
+              </svg>
+            )}
+            {item.icon === 'clients' && (
+              <svg viewBox="0 0 48 48">
+                <path d="m17.5 12.5-11 11.5 11 11.5M30.5 12.5l11 11.5-11 11.5M27.5 7.5l-7 33" />
+              </svg>
+            )}
+          </span>
+          <span class="product-card__copy">
+            <strong>{item.title}</strong>
+            <span>{item.description}</span>
+          </span>
+          <span class="product-card__arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+              <path d="M5 12h13m-5-5 5 5-5 5" />
+            </svg>
+          </span>
+        </a>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .product-dock {
+    isolation: isolate;
+    position: relative;
+  }
+
+  .product-dock h2 {
+    color: var(--text, #f4f8fc);
+    font-size: clamp(1.35rem, 2.2vw, 1.8rem);
+    font-weight: 720;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+    margin: 0 0 1.45rem;
+    position: relative;
+    text-align: center;
+    z-index: 2;
+  }
+
+  .product-dock__orbit {
+    height: 10rem;
+    inset: -5.65rem 0 auto;
+    overflow: hidden;
+    pointer-events: none;
+    position: absolute;
+    z-index: -1;
+  }
+
+  .product-dock__orbit::before,
+  .product-dock__orbit::after,
+  .product-dock__orbit span {
+    border: 1px solid color-mix(in srgb, var(--accent, #50d8ff), transparent 72%);
+    border-radius: 50%;
+    content: '';
+    height: 9rem;
+    inset: 5rem -8% auto;
+    position: absolute;
+    transform: rotate(-2deg);
+  }
+
+  .product-dock__orbit::after {
+    border-color: color-mix(in srgb, var(--teal, #31dac7), transparent 82%);
+    inset-inline: 5%;
+    inset-block-start: 5.75rem;
+  }
+
+  .product-dock__orbit span {
+    background: var(--accent, #50d8ff);
+    border: 0;
+    box-shadow: 0 0 1rem var(--accent, #50d8ff);
+    height: 0.42rem;
+    inset-block-start: 5.04rem;
+    inset-inline-start: 49%;
+    width: 0.42rem;
+    animation: orbit-beacon 4.8s ease-in-out infinite;
+  }
+
+  .product-dock__grid {
+    display: grid;
+    gap: 0.9rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    position: relative;
+    z-index: 1;
+  }
+
+  .product-card {
+    align-items: center;
+    backdrop-filter: blur(1.1rem) saturate(135%);
+    background:
+      radial-gradient(
+        circle at 12% 25%,
+        color-mix(in srgb, var(--accent, #50d8ff), transparent 88%),
+        transparent 42%
+      ),
+      linear-gradient(
+        145deg,
+        color-mix(in srgb, var(--surface-solid, #09182a), transparent 9%),
+        color-mix(in srgb, var(--surface, rgb(8 22 42 / 72%)), transparent 15%)
+      );
+    border: 1px solid var(--line-strong, rgb(91 216 255 / 34%));
+    border-radius: 0.92rem;
+    box-shadow:
+      inset 0 1px rgb(255 255 255 / 4%),
+      0 1.25rem 3.25rem rgb(0 0 0 / 16%);
+    color: var(--text, #f4f8fc);
+    display: grid;
+    gap: 0.85rem;
+    grid-template-columns: auto minmax(0, 1fr);
+    min-height: 9rem;
+    overflow: hidden;
+    padding: 1.15rem 1rem;
+    position: relative;
+    text-decoration: none;
+    transition:
+      border-color 220ms ease,
+      box-shadow 220ms ease,
+      transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .product-card::before {
+    background: linear-gradient(90deg, transparent, var(--accent, #50d8ff), transparent);
+    content: '';
+    height: 1px;
+    inset: 0 10% auto;
+    opacity: 0.32;
+    position: absolute;
+  }
+
+  .product-card:hover {
+    border-color: color-mix(in srgb, var(--accent, #50d8ff), transparent 38%);
+    box-shadow:
+      inset 0 1px rgb(255 255 255 / 8%),
+      0 1.5rem 3.75rem color-mix(in srgb, var(--glow, rgb(24 190 244 / 23%)), transparent 25%);
+    transform: translateY(-0.22rem);
+  }
+
+  .product-card__icon {
+    align-items: center;
+    background: linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--accent, #50d8ff), transparent 78%),
+      color-mix(in srgb, var(--surface-solid, #09182a), transparent 4%)
+    );
+    color: var(--teal, #31dac7);
+    display: inline-flex;
+    filter: drop-shadow(0 0 0.85rem color-mix(in srgb, currentColor, transparent 55%));
+    height: 3.45rem;
+    justify-content: center;
+    position: relative;
+    width: 3.45rem;
+    clip-path: polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+  }
+
+  .product-card__icon::before {
+    border: 1px solid currentColor;
+    content: '';
+    inset: 0;
+    opacity: 0.45;
+    position: absolute;
+    clip-path: inherit;
+  }
+
+  .product-card__icon svg {
+    height: 2.15rem;
+    overflow: visible;
+    width: 2.15rem;
+  }
+
+  .product-card__icon path {
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.55;
+  }
+
+  .product-card--extension .product-card__icon {
+    background: linear-gradient(145deg, rgb(123 72 255 / 28%), rgb(35 18 76 / 72%));
+    color: #a780ff;
+  }
+
+  .product-card__copy {
+    align-self: center;
+    display: block;
+    min-width: 0;
+  }
+
+  .product-card__copy strong {
+    display: block;
+    font-size: 1rem;
+    font-weight: 680;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+  }
+
+  .product-card__copy > span {
+    color: var(--text-soft, #bdcada);
+    display: block;
+    font-size: 0.77rem;
+    line-height: 1.55;
+    margin-top: 0.38rem;
+  }
+
+  .product-card__arrow {
+    bottom: 0.85rem;
+    color: var(--text-soft, #bdcada);
+    position: absolute;
+    right: 0.85rem;
+    transition:
+      color 220ms ease,
+      transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .product-card__arrow path {
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.45;
+  }
+
+  .product-card:hover .product-card__arrow {
+    color: var(--accent, #50d8ff);
+    transform: translateX(0.18rem);
+  }
+
+  @keyframes orbit-beacon {
+    0%,
+    100% {
+      opacity: 0.52;
+      transform: translateX(-13rem) scale(0.7);
+    }
+
+    50% {
+      opacity: 1;
+      transform: translateX(13rem) scale(1);
+    }
+  }
+
+  @media (max-width: 69.99rem) {
+    .product-dock__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 39.99rem) {
+    .product-dock h2 {
+      text-align: start;
+    }
+
+    .product-dock__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .product-card {
+      min-height: 8.25rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .product-dock__orbit span {
+      animation: none;
+      transform: none;
+    }
+
+    .product-card,
+    .product-card__arrow {
+      transition: none;
+    }
+  }
+</style>

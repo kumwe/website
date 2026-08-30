@@ -12,6 +12,9 @@ export type OrbitalRenderMode = 'webgl' | 'fallback';
 export interface OrbitalSceneOptions {
   darkTextureUrl?: string;
   lightTextureUrl?: string;
+  cloudTextureUrl?: string;
+  topologyTextureUrl?: string;
+  waterTextureUrl?: string;
   /** `high` opts out of automatic low-spec simplification, but never bypasses Save-Data. */
   quality?: 'auto' | 'high';
 }
@@ -35,6 +38,7 @@ interface NavigatorWithHints extends Navigator {
 interface OrbiterDefinition {
   id: string;
   kind: 'satellite' | 'station';
+  variant: 'cube' | 'relay' | 'station' | 'weather';
   size: number;
   elements: OrbitalElements;
   colour: number;
@@ -49,36 +53,37 @@ interface OrbiterRuntime extends OrbiterDefinition {
 
 interface ScenePalette {
   atmosphere: THREE.ColorRepresentation;
-  body: THREE.ColorRepresentation;
   marker: THREE.ColorRepresentation;
-  panel: THREE.ColorRepresentation;
-  panelEdge: THREE.ColorRepresentation;
   star: THREE.ColorRepresentation;
   trail: THREE.ColorRepresentation;
 }
 
+type EarthTextureRole = 'bump' | 'clouds' | 'day' | 'night' | 'water';
+
 const EARTH_RADIUS = 52;
-const INITIAL_EARTH_ROTATION = -Math.PI / 2;
+const INITIAL_EARTH_ROTATION = THREE.MathUtils.degToRad(-120);
 const NAMIBIA = { latitude: -22.56, longitude: 17.08 };
 const TRAIL_SEGMENTS = 18;
 const TRAIL_RADIANS = Math.PI * 0.24;
+const EARTH_ROTATION_SPEED = 0.001;
+const CLOUD_ROTATION_SPEED = 0.000085;
+const AXIAL_VIEW_TILT = THREE.MathUtils.degToRad(-58);
+const ATTITUDE_FORWARD = new THREE.Vector3();
+const ATTITUDE_OUTWARD = new THREE.Vector3();
+const ATTITUDE_RIGHT = new THREE.Vector3();
+const ATTITUDE_UP = new THREE.Vector3();
+const ATTITUDE_BASIS = new THREE.Matrix4();
 
 const PALETTES: Record<ResolvedTheme, ScenePalette> = {
   dark: {
     atmosphere: '#2bd8ff',
-    body: '#d8f7ff',
     marker: '#57f3e9',
-    panel: '#116e91',
-    panelEdge: '#50dff3',
     star: '#c8f5ff',
     trail: '#3bd9ee',
   },
   light: {
     atmosphere: '#087fa8',
-    body: '#eafcff',
     marker: '#007d79',
-    panel: '#075e7f',
-    panelEdge: '#069f9b',
     star: '#3a718c',
     trail: '#087f99',
   },
@@ -88,26 +93,28 @@ const ORBITERS: OrbiterDefinition[] = [
   {
     id: 'relay-a',
     kind: 'satellite',
-    size: 0.86,
+    variant: 'relay',
+    size: 0.46,
     colour: 0x57e9f4,
     elements: {
       radius: 67,
       inclinationDeg: 28,
       ascendingNodeDeg: -18,
-      phaseDeg: 214,
+      phaseDeg: 90,
       angularVelocity: 0.105,
     },
   },
   {
     id: 'relay-b',
     kind: 'satellite',
-    size: 1.08,
+    variant: 'weather',
+    size: 0.55,
     colour: 0x46d8ff,
     elements: {
       radius: 75,
       inclinationDeg: 63,
       ascendingNodeDeg: 42,
-      phaseDeg: 74,
+      phaseDeg: 115,
       angularVelocity: 0.074,
       direction: -1,
     },
@@ -115,39 +122,42 @@ const ORBITERS: OrbiterDefinition[] = [
   {
     id: 'relay-c',
     kind: 'satellite',
-    size: 0.72,
+    variant: 'cube',
+    size: 0.38,
     colour: 0x67f2dc,
     elements: {
       radius: 82,
       inclinationDeg: 81,
       ascendingNodeDeg: 118,
-      phaseDeg: 302,
+      phaseDeg: 100,
       angularVelocity: 0.052,
     },
   },
   {
     id: 'relay-d',
     kind: 'satellite',
-    size: 0.94,
+    variant: 'relay',
+    size: 0.49,
     colour: 0x9adff3,
     elements: {
       radius: 64,
       inclinationDeg: -41,
       ascendingNodeDeg: 202,
-      phaseDeg: 18,
+      phaseDeg: 280,
       angularVelocity: 0.124,
     },
   },
   {
     id: 'orbital-station',
     kind: 'station',
-    size: 1.42,
+    variant: 'station',
+    size: 0.72,
     colour: 0x8feaff,
     elements: {
       radius: 71,
       inclinationDeg: 51.6,
       ascendingNodeDeg: -38,
-      phaseDeg: 142,
+      phaseDeg: 125,
       angularVelocity: 0.059,
     },
   },
@@ -200,11 +210,12 @@ export function mountOrbitalScene(
   container.removeAttribute('data-orbit-reason');
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 650);
-  camera.position.set(0, 0, 210);
+  const camera = new THREE.PerspectiveCamera(33, 1, 0.1, 720);
+  camera.position.set(0, 0, 118);
   camera.lookAt(0, -7, 0);
 
   const globeSystem = new THREE.Group();
+  globeSystem.rotation.x = AXIAL_VIEW_TILT;
   const earthSurface = new THREE.Group();
   globeSystem.add(earthSurface);
   scene.add(globeSystem);
@@ -214,39 +225,40 @@ export function mountOrbitalScene(
     simplified ? 56 : 88,
     simplified ? 36 : 56,
   );
-  const earthMaterial = new THREE.MeshStandardMaterial({
-    color: 0x0b3e58,
-    emissive: 0x041a2c,
-    emissiveIntensity: 0.34,
-    metalness: 0.04,
-    roughness: 0.86,
-  });
+  const earthMaterial = createEarthMaterial();
   const earth = new THREE.Mesh(earthGeometry, earthMaterial);
   earth.receiveShadow = false;
+  earth.visible = false;
   earthSurface.add(earth);
 
-  // A low-opacity unlit layer keeps coastlines and Namibia readable in the
-  // dark scene without flattening the lit globe underneath it.
-  const twilightMaterial = new THREE.MeshBasicMaterial({
-    blending: THREE.NormalBlending,
-    color: 0x76919a,
+  const cloudMaterial = new THREE.MeshPhongMaterial({
+    color: 0xf4fbff,
     depthTest: true,
     depthWrite: false,
-    opacity: 0.6,
+    opacity: 0.64,
+    shininess: 1,
     transparent: true,
   });
-  const twilightSurface = new THREE.Mesh(earthGeometry, twilightMaterial);
-  twilightSurface.renderOrder = 2;
-  twilightSurface.scale.setScalar(1.0015);
-  earthSurface.add(twilightSurface);
+  const clouds = new THREE.Mesh(earthGeometry, cloudMaterial);
+  clouds.renderOrder = 2;
+  clouds.scale.setScalar(1.007);
+  clouds.visible = false;
+  earthSurface.add(clouds);
 
-  const atmosphereMaterial = createAtmosphereMaterial();
-  const atmosphere = new THREE.Mesh(
-    new THREE.SphereGeometry(EARTH_RADIUS * 1.065, simplified ? 48 : 72, simplified ? 32 : 48),
-    atmosphereMaterial,
+  const atmosphereGeometry = new THREE.SphereGeometry(
+    EARTH_RADIUS,
+    simplified ? 48 : 72,
+    simplified ? 32 : 48,
   );
-  atmosphere.renderOrder = 3;
-  earthSurface.add(atmosphere);
+  const innerAtmosphereMaterial = createAtmosphereMaterial(2.75);
+  const outerAtmosphereMaterial = createAtmosphereMaterial(4.2);
+  const innerAtmosphere = new THREE.Mesh(atmosphereGeometry, innerAtmosphereMaterial);
+  const outerAtmosphere = new THREE.Mesh(atmosphereGeometry, outerAtmosphereMaterial);
+  innerAtmosphere.renderOrder = 3;
+  innerAtmosphere.scale.setScalar(1.014);
+  outerAtmosphere.renderOrder = 4;
+  outerAtmosphere.scale.setScalar(1.043);
+  earthSurface.add(innerAtmosphere, outerAtmosphere);
 
   const locationMarker = createLocationMarker();
   earthSurface.add(locationMarker.group);
@@ -255,11 +267,12 @@ export function mountOrbitalScene(
   const stars = createStars(compact ? 420 : simplified ? 540 : 780, starMaterial);
   scene.add(stars);
 
-  const ambientLight = new THREE.HemisphereLight(0x9de9ff, 0x03101c, 1.15);
-  const sunLight = new THREE.DirectionalLight(0xc8f3ff, 3.2);
-  sunLight.position.set(-85, 74, 120);
-  const rimLight = new THREE.DirectionalLight(0x0ba5dc, 1.4);
-  rimLight.position.set(95, -20, -45);
+  const ambientLight = new THREE.HemisphereLight(0xc9e8f5, 0x020711, 0.4);
+  const sunLight = new THREE.DirectionalLight(0xf8fbff, 3.1);
+  sunLight.position.set(-95, 62, 105);
+  scene.add(sunLight.target);
+  const rimLight = new THREE.DirectionalLight(0x1bbce9, 0.9);
+  rimLight.position.set(110, -25, -70);
   scene.add(ambientLight, sunLight, rimLight);
 
   const sharedMaterials = createOrbiterMaterials();
@@ -267,7 +280,7 @@ export function mountOrbitalScene(
     createOrbiterRuntime(definition, globeSystem, sharedMaterials),
   );
 
-  const textures: Partial<Record<ResolvedTheme, THREE.Texture>> = {};
+  const textures: Partial<Record<EarthTextureRole, THREE.Texture>> = {};
   const textureLoader = new THREE.TextureLoader();
   textureLoader.setCrossOrigin('anonymous');
 
@@ -286,35 +299,25 @@ export function mountOrbitalScene(
   const updateTheme = (): void => {
     resolvedTheme = resolveTheme();
     const palette = PALETTES[resolvedTheme];
-    const dayTexture = textures.light;
-    const nightTexture = textures.dark;
-    const surfaceTexture = dayTexture ?? nightTexture;
 
-    earthMaterial.color.set(0x7ab0bf);
-    earthMaterial.emissive.set(0x073340);
-    earthMaterial.emissiveIntensity = 0.08;
-    earthMaterial.map = surfaceTexture ?? null;
-    earthMaterial.emissiveMap = null;
-    earthMaterial.needsUpdate = true;
-    twilightMaterial.map = dayTexture ?? null;
-    twilightMaterial.visible = resolvedTheme === 'dark' && Boolean(dayTexture);
-    twilightMaterial.needsUpdate = true;
-
-    atmosphereMaterial.uniforms.uColour.value.set(palette.atmosphere);
-    atmosphereMaterial.uniforms.uOpacity.value = resolvedTheme === 'dark' ? 0.68 : 0.42;
+    earthMaterial.uniforms.uAmbient.value = resolvedTheme === 'dark' ? 0.14 : 0.25;
+    earthMaterial.uniforms.uNightStrength.value = resolvedTheme === 'dark' ? 1.38 : 0.88;
+    innerAtmosphereMaterial.uniforms.uColour.value.set(palette.atmosphere);
+    innerAtmosphereMaterial.uniforms.uOpacity.value = resolvedTheme === 'dark' ? 0.3 : 0.19;
+    outerAtmosphereMaterial.uniforms.uColour.value.set(palette.atmosphere);
+    outerAtmosphereMaterial.uniforms.uOpacity.value = resolvedTheme === 'dark' ? 0.21 : 0.13;
     starMaterial.uniforms.uColour.value.set(palette.star);
-    starMaterial.uniforms.uThemeOpacity.value = resolvedTheme === 'dark' ? 1 : 0.46;
-    sharedMaterials.body.color.set(palette.body);
-    sharedMaterials.panel.color.set(palette.panel);
-    sharedMaterials.panel.emissive.set(palette.panelEdge);
-    sharedMaterials.detail.color.set(palette.panelEdge);
-    locationMarker.dotMaterial.color.set(palette.marker);
+    starMaterial.uniforms.uThemeOpacity.value = resolvedTheme === 'dark' ? 1 : 0.26;
+    cloudMaterial.color.set(resolvedTheme === 'dark' ? 0xddebf2 : 0xffffff);
+    cloudMaterial.opacity = resolvedTheme === 'dark' ? 0.43 : 0.34;
+    locationMarker.coreMaterial.color.set(resolvedTheme === 'dark' ? 0xf4ffff : palette.marker);
     locationMarker.ringMaterial.color.set(palette.marker);
+    locationMarker.glowMaterial.uniforms.uColour.value.set(palette.marker);
 
-    renderer.toneMappingExposure = resolvedTheme === 'dark' ? 0.96 : 1.08;
-    ambientLight.intensity = 1.55;
-    sunLight.intensity = 4.0;
-    rimLight.intensity = resolvedTheme === 'dark' ? 1.4 : 0.75;
+    renderer.toneMappingExposure = resolvedTheme === 'dark' ? 1.02 : 1.08;
+    ambientLight.intensity = resolvedTheme === 'dark' ? 0.38 : 0.62;
+    sunLight.intensity = resolvedTheme === 'dark' ? 3.05 : 3.35;
+    rimLight.intensity = resolvedTheme === 'dark' ? 0.95 : 0.55;
 
     for (const orbiter of orbiters) {
       updateTrailColours(orbiter, palette.trail);
@@ -323,7 +326,7 @@ export function mountOrbitalScene(
     renderOnce();
   };
 
-  const requestTexture = (theme: ResolvedTheme, url: string | undefined): void => {
+  const requestTexture = (role: EarthTextureRole, url: string | undefined): void => {
     if (!url) return;
 
     textureLoader.load(
@@ -334,16 +337,42 @@ export function mountOrbitalScene(
           return;
         }
 
-        texture.colorSpace = THREE.SRGBColorSpace;
-        texture.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+        texture.colorSpace =
+          role === 'day' || role === 'night' || role === 'clouds'
+            ? THREE.SRGBColorSpace
+            : THREE.NoColorSpace;
+        texture.anisotropy = Math.min(
+          role === 'bump' || role === 'water' ? 2 : 4,
+          renderer.capabilities.getMaxAnisotropy(),
+        );
         texture.wrapS = THREE.RepeatWrapping;
-        textures[theme]?.dispose();
-        textures[theme] = texture;
+        textures[role]?.dispose();
+        textures[role] = texture;
+
+        if (role === 'day') {
+          earthMaterial.uniforms.uDayMap.value = texture;
+          if (!textures.night) earthMaterial.uniforms.uNightMap.value = texture;
+          earth.visible = true;
+        } else if (role === 'night') {
+          earthMaterial.uniforms.uNightMap.value = texture;
+        } else if (role === 'clouds') {
+          cloudMaterial.map = texture;
+          cloudMaterial.needsUpdate = true;
+          clouds.visible = true;
+        } else if (role === 'bump') {
+          earthMaterial.uniforms.uBumpMap.value = texture;
+          earthMaterial.uniforms.uHasBump.value = 1;
+        } else {
+          earthMaterial.uniforms.uWaterMap.value = texture;
+          earthMaterial.uniforms.uHasWater.value = 1;
+        }
+
         updateTheme();
+        if (role === 'day') revealScene();
       },
       undefined,
       () => {
-        // The procedural ocean material remains as a resilient offline fallback.
+        // The photographic CSS still remains visible when the primary day map fails.
       },
     );
   };
@@ -352,22 +381,30 @@ export function mountOrbitalScene(
     elapsed += deltaSeconds;
     const animatedTime = reducedMotion ? 0 : elapsed;
 
-    earthSurface.rotation.set(0, INITIAL_EARTH_ROTATION + animatedTime * 0.0042, 0);
+    earthSurface.rotation.set(0, INITIAL_EARTH_ROTATION + animatedTime * EARTH_ROTATION_SPEED, 0);
+    clouds.rotation.y = animatedTime * CLOUD_ROTATION_SPEED;
     stars.rotation.z = animatedTime * 0.0016;
     starMaterial.uniforms.uTime.value = animatedTime;
-    atmosphereMaterial.uniforms.uTime.value = animatedTime;
+    innerAtmosphereMaterial.uniforms.uTime.value = animatedTime;
+    outerAtmosphereMaterial.uniforms.uTime.value = animatedTime;
 
-    const markerPulse = reducedMotion ? 1 : 1 + Math.sin(animatedTime * 1.8) * 0.13;
+    const markerPulse = reducedMotion ? 1 : 1 + Math.sin(animatedTime * 1.65) * 0.095;
     locationMarker.ring.scale.setScalar(markerPulse);
+    locationMarker.glow.scale.setScalar(
+      reducedMotion ? 1 : 1 + Math.sin(animatedTime * 1.65) * 0.075,
+    );
     locationMarker.ringMaterial.opacity = reducedMotion
-      ? 0.48
-      : 0.31 + (Math.sin(animatedTime * 1.8) + 1) * 0.11;
+      ? 0.45
+      : 0.26 + (Math.sin(animatedTime * 1.65) + 1) * 0.075;
+    locationMarker.glowMaterial.uniforms.uOpacity.value = reducedMotion
+      ? 0.26
+      : 0.2 + (Math.sin(animatedTime * 1.65) + 1) * 0.045;
 
     for (const orbiter of orbiters) {
       const position = orbitalPositionAt(orbiter.elements, animatedTime);
       const tangent = orbitalTangentAt(orbiter.elements, animatedTime);
       orbiter.model.position.set(position.x, position.y, position.z);
-      orientAlongTangent(orbiter.model, tangent);
+      orientAlongTangent(orbiter.model, tangent, position);
 
       if (orbiter.kind === 'station') {
         const articulation = orbiter.model.userData.articulation as THREE.Group | undefined;
@@ -403,11 +440,7 @@ export function mountOrbitalScene(
     lastFrameTime = time;
     updateScene(reducedMotion ? 0 : delta);
     renderer.render(scene, camera);
-
-    if (firstFrame) {
-      firstFrame = false;
-      container.classList.add('is-ready');
-    }
+    revealScene();
 
     scheduleAnimation();
   };
@@ -425,10 +458,13 @@ export function mountOrbitalScene(
     if (destroyed) return;
     updateScene(0);
     renderer.render(scene, camera);
-    if (firstFrame) {
-      firstFrame = false;
-      container.classList.add('is-ready');
-    }
+    revealScene();
+  }
+
+  function revealScene(): void {
+    if (!firstFrame || !textures.day) return;
+    firstFrame = false;
+    container.classList.add('is-ready');
   }
 
   const resize = (): void => {
@@ -438,20 +474,32 @@ export function mountOrbitalScene(
 
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
-    camera.updateProjectionMatrix();
     starMaterial.uniforms.uPixelRatio.value = renderer.getPixelRatio();
 
     if (isNarrow) {
-      globeSystem.position.set(8, -39, -5);
-      globeSystem.scale.setScalar(0.84);
+      camera.fov = 39;
+      camera.position.set(0, 0, 205);
+      globeSystem.position.set(7, -36, -5);
+      globeSystem.scale.setScalar(0.9);
     } else if (width < 960) {
-      globeSystem.position.set(28, -32, -2);
-      globeSystem.scale.setScalar(0.92);
+      camera.fov = 36;
+      camera.position.set(0, 0, 158);
+      globeSystem.position.set(23, -40, -3);
+      globeSystem.scale.setScalar(0.94);
     } else {
-      globeSystem.position.set(47, -27, 0);
+      camera.fov = 33;
+      camera.position.set(0, 0, 118);
+      globeSystem.position.set(25, -49, 0);
       globeSystem.scale.setScalar(1);
     }
 
+    camera.lookAt(0, -7, 0);
+    camera.updateProjectionMatrix();
+    sunLight.target.position.copy(globeSystem.position);
+    earthMaterial.uniforms.uSunDirection.value
+      .copy(sunLight.position)
+      .sub(sunLight.target.position)
+      .normalize();
     renderOnce();
   };
 
@@ -516,8 +564,13 @@ export function mountOrbitalScene(
 
   resize();
   updateTheme();
-  requestTexture('light', options.lightTextureUrl);
-  requestTexture('dark', options.darkTextureUrl);
+  requestTexture('day', options.lightTextureUrl);
+  requestTexture('night', options.darkTextureUrl);
+  requestTexture('clouds', options.cloudTextureUrl);
+  if (!simplified) {
+    requestTexture('bump', options.topologyTextureUrl);
+    requestTexture('water', options.waterTextureUrl);
+  }
   renderOnce();
   scheduleAnimation(true);
 
@@ -546,7 +599,108 @@ export function mountOrbitalScene(
   };
 }
 
-function createAtmosphereMaterial(): THREE.ShaderMaterial {
+function createEarthMaterial(): THREE.ShaderMaterial {
+  return new THREE.ShaderMaterial({
+    depthTest: true,
+    depthWrite: true,
+    toneMapped: true,
+    uniforms: {
+      uAmbient: { value: 0.14 },
+      uBumpMap: { value: null as THREE.Texture | null },
+      uBumpScale: { value: 2.2 },
+      uBumpTexel: { value: new THREE.Vector2(1 / 2048, 1 / 1024) },
+      uDayMap: { value: null as THREE.Texture | null },
+      uHasBump: { value: 0 },
+      uHasWater: { value: 0 },
+      uNightMap: { value: null as THREE.Texture | null },
+      uNightStrength: { value: 1.38 },
+      uSunDirection: { value: new THREE.Vector3(-0.55, 0.32, 0.77).normalize() },
+      uWaterMap: { value: null as THREE.Texture | null },
+    },
+    vertexShader: /* glsl */ `
+      varying vec2 vUv;
+      varying vec3 vWorldBitangent;
+      varying vec3 vWorldNormal;
+      varying vec3 vWorldPosition;
+      varying vec3 vWorldTangent;
+
+      void main() {
+        vec3 localNormal = normalize(normal);
+        vec3 localTangent = vec3(-localNormal.z, 0.0, localNormal.x);
+        if (dot(localTangent, localTangent) < 0.0001) {
+          localTangent = vec3(1.0, 0.0, 0.0);
+        }
+
+        vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+        mat3 worldNormalMatrix = mat3(modelMatrix);
+        vUv = uv;
+        vWorldNormal = normalize(worldNormalMatrix * localNormal);
+        vWorldPosition = worldPosition.xyz;
+        vWorldTangent = normalize(worldNormalMatrix * normalize(localTangent));
+        vWorldBitangent = normalize(cross(vWorldNormal, vWorldTangent));
+        gl_Position = projectionMatrix * viewMatrix * worldPosition;
+      }
+    `,
+    fragmentShader: /* glsl */ `
+      uniform float uAmbient;
+      uniform sampler2D uBumpMap;
+      uniform float uBumpScale;
+      uniform vec2 uBumpTexel;
+      uniform sampler2D uDayMap;
+      uniform float uHasBump;
+      uniform float uHasWater;
+      uniform sampler2D uNightMap;
+      uniform float uNightStrength;
+      uniform vec3 uSunDirection;
+      uniform sampler2D uWaterMap;
+      varying vec2 vUv;
+      varying vec3 vWorldBitangent;
+      varying vec3 vWorldNormal;
+      varying vec3 vWorldPosition;
+      varying vec3 vWorldTangent;
+
+      void main() {
+        vec3 normal = normalize(vWorldNormal);
+        if (uHasBump > 0.5) {
+          float heightLeft = texture2D(uBumpMap, vUv - vec2(uBumpTexel.x, 0.0)).r;
+          float heightRight = texture2D(uBumpMap, vUv + vec2(uBumpTexel.x, 0.0)).r;
+          float heightDown = texture2D(uBumpMap, vUv - vec2(0.0, uBumpTexel.y)).r;
+          float heightUp = texture2D(uBumpMap, vUv + vec2(0.0, uBumpTexel.y)).r;
+          float poleFade = smoothstep(0.015, 0.08, vUv.y) * smoothstep(0.015, 0.08, 1.0 - vUv.y);
+          vec3 perturbation =
+            vWorldTangent * (heightLeft - heightRight) +
+            vWorldBitangent * (heightDown - heightUp);
+          normal = normalize(normal + perturbation * uBumpScale * poleFade);
+        }
+
+        vec3 sunDirection = normalize(uSunDirection);
+        vec3 viewDirection = normalize(cameraPosition - vWorldPosition);
+        float sunAmount = dot(normal, sunDirection);
+        float dayMix = smoothstep(-0.12, 0.18, sunAmount);
+        float diffuse = uAmbient + max(sunAmount, 0.0) * (1.08 - uAmbient);
+
+        vec3 dayColour = texture2D(uDayMap, vUv).rgb * diffuse;
+        vec3 nightColour = texture2D(uNightMap, vUv).rgb * uNightStrength;
+
+        float water = uHasWater > 0.5 ? texture2D(uWaterMap, vUv).r : 0.0;
+        vec3 halfVector = normalize(sunDirection + viewDirection);
+        float specular =
+          pow(max(dot(normal, halfVector), 0.0), 56.0) *
+          max(sunAmount, 0.0) *
+          water *
+          0.22;
+
+        vec3 colour = mix(nightColour, dayColour, dayMix);
+        colour += vec3(0.62, 0.82, 1.0) * specular;
+        gl_FragColor = vec4(colour, 1.0);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
+      }
+    `,
+  });
+}
+
+function createAtmosphereMaterial(rimPower: number): THREE.ShaderMaterial {
   return new THREE.ShaderMaterial({
     blending: THREE.AdditiveBlending,
     depthTest: true,
@@ -555,32 +709,42 @@ function createAtmosphereMaterial(): THREE.ShaderMaterial {
     transparent: true,
     uniforms: {
       uColour: { value: new THREE.Color(PALETTES.dark.atmosphere) },
-      uOpacity: { value: 0.68 },
+      uOpacity: { value: 0.32 },
+      uRimPower: { value: rimPower },
       uTime: { value: 0 },
     },
     vertexShader: /* glsl */ `
       varying vec3 vNormal;
       varying vec3 vViewDirection;
+      varying vec3 vWorldNormal;
 
       void main() {
-        vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
+        vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+        vec4 viewPosition = viewMatrix * worldPosition;
         vNormal = normalize(normalMatrix * normal);
         vViewDirection = normalize(-viewPosition.xyz);
+        vWorldNormal = normalize(mat3(modelMatrix) * normal);
         gl_Position = projectionMatrix * viewPosition;
       }
     `,
     fragmentShader: /* glsl */ `
       uniform vec3 uColour;
       uniform float uOpacity;
+      uniform float uRimPower;
       uniform float uTime;
       varying vec3 vNormal;
       varying vec3 vViewDirection;
+      varying vec3 vWorldNormal;
 
       void main() {
-        float rim = pow(1.0 - max(0.0, dot(vNormal, vViewDirection)), 2.45);
-        float pulse = 0.92 + 0.08 * sin(uTime * 0.72);
-        float alpha = rim * uOpacity * pulse;
+        float rim = pow(1.0 - max(0.0, dot(vNormal, vViewDirection)), uRimPower);
+        float flowA = sin(vWorldNormal.y * 10.0 + vWorldNormal.x * 6.0 + uTime * 0.19);
+        float flowB = sin((vWorldNormal.x - vWorldNormal.z) * 14.0 - uTime * 0.13);
+        float movement = 0.965 + flowA * 0.022 + flowB * 0.013;
+        float alpha = rim * uOpacity * movement;
         gl_FragColor = vec4(uColour, alpha);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
       }
     `,
   });
@@ -600,16 +764,18 @@ function createStarMaterial(pixelRatio: number): THREE.ShaderMaterial {
     },
     vertexShader: /* glsl */ `
       attribute float aPhase;
+      attribute float aRate;
       attribute float aSize;
+      attribute float aTwinkle;
       uniform float uPixelRatio;
       uniform float uTime;
       varying float vBrightness;
 
       void main() {
         vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
-        float wave = sin(uTime * (0.72 + fract(aPhase) * 1.4) + aPhase * 6.28318);
-        vBrightness = 0.58 + 0.42 * wave;
-        gl_PointSize = max(0.75, aSize * uPixelRatio * (175.0 / -viewPosition.z) * (0.82 + vBrightness * 0.32));
+        float wave = 0.5 + 0.5 * sin(uTime * aRate + aPhase * 6.28318);
+        vBrightness = mix(1.0, 0.26 + wave * 0.74, aTwinkle);
+        gl_PointSize = max(0.75, aSize * uPixelRatio * (175.0 / -viewPosition.z) * (0.88 + vBrightness * 0.18));
         gl_Position = projectionMatrix * viewPosition;
       }
     `,
@@ -625,6 +791,8 @@ function createStarMaterial(pixelRatio: number): THREE.ShaderMaterial {
         float alpha = (core * 0.72 + glow * 0.28) * (0.5 + vBrightness * 0.5) * uThemeOpacity;
         if (alpha < 0.015) discard;
         gl_FragColor = vec4(uColour, alpha);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
       }
     `,
   });
@@ -633,7 +801,9 @@ function createStarMaterial(pixelRatio: number): THREE.ShaderMaterial {
 function createStars(count: number, material: THREE.ShaderMaterial): THREE.Points {
   const positions = new Float32Array(count * 3);
   const phases = new Float32Array(count);
+  const rates = new Float32Array(count);
   const sizes = new Float32Array(count);
+  const twinkles = new Float32Array(count);
 
   // A deterministic generator prevents the constellation jumping between navigations.
   let seed = 0x4b554d57;
@@ -648,28 +818,35 @@ function createStars(count: number, material: THREE.ShaderMaterial): THREE.Point
     positions[offset + 1] = (random() - 0.5) * 235;
     positions[offset + 2] = -75 - random() * 210;
     phases[index] = random();
-    sizes[index] = 2.1 + Math.pow(random(), 3) * 5.4;
+    rates[index] = 0.35 + random() * 1.55;
+    sizes[index] = 1.9 + Math.pow(random(), 3) * 5.1;
+    twinkles[index] = random() < 0.18 ? 0.46 + random() * 0.46 : 0.04 + random() * 0.12;
   }
 
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
   geometry.setAttribute('aPhase', new THREE.BufferAttribute(phases, 1));
+  geometry.setAttribute('aRate', new THREE.BufferAttribute(rates, 1));
   geometry.setAttribute('aSize', new THREE.BufferAttribute(sizes, 1));
+  geometry.setAttribute('aTwinkle', new THREE.BufferAttribute(twinkles, 1));
   return new THREE.Points(geometry, material);
 }
 
 function createLocationMarker(): {
+  coreMaterial: THREE.MeshBasicMaterial;
+  glow: THREE.Mesh;
+  glowMaterial: THREE.ShaderMaterial;
   group: THREE.Group;
   ring: THREE.Mesh;
-  dotMaterial: THREE.MeshBasicMaterial;
   ringMaterial: THREE.MeshBasicMaterial;
 } {
   const group = new THREE.Group();
   const normal = latitudeLongitudeToNormal(NAMIBIA.latitude, NAMIBIA.longitude);
-  const position = normal.clone().multiplyScalar(EARTH_RADIUS * 1.008);
+  const position = normal.clone().multiplyScalar(EARTH_RADIUS * 1.012);
 
-  const dotMaterial = new THREE.MeshBasicMaterial({
-    color: PALETTES.dark.marker,
+  const coreMaterial = new THREE.MeshBasicMaterial({
+    blending: THREE.AdditiveBlending,
+    color: 0xf4ffff,
     depthTest: true,
     depthWrite: false,
     transparent: true,
@@ -682,17 +859,53 @@ function createLocationMarker(): {
     side: THREE.DoubleSide,
     transparent: true,
   });
-  const dot = new THREE.Mesh(new THREE.CircleGeometry(0.72, 24), dotMaterial);
-  const ring = new THREE.Mesh(new THREE.RingGeometry(1.15, 1.42, 36), ringMaterial);
+  const glowMaterial = new THREE.ShaderMaterial({
+    blending: THREE.AdditiveBlending,
+    depthTest: true,
+    depthWrite: false,
+    transparent: true,
+    uniforms: {
+      uColour: { value: new THREE.Color(PALETTES.dark.marker) },
+      uOpacity: { value: 0.26 },
+    },
+    vertexShader: /* glsl */ `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: /* glsl */ `
+      uniform vec3 uColour;
+      uniform float uOpacity;
+      varying vec2 vUv;
+      void main() {
+        float radius = distance(vUv, vec2(0.5));
+        float alpha = (1.0 - smoothstep(0.02, 0.5, radius)) * uOpacity;
+        if (alpha < 0.01) discard;
+        gl_FragColor = vec4(uColour, alpha);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
+      }
+    `,
+  });
+  const core = new THREE.Mesh(new THREE.CircleGeometry(0.3, 20), coreMaterial);
+  const ring = new THREE.Mesh(new THREE.RingGeometry(0.62, 0.82, 32), ringMaterial);
+  const glow = new THREE.Mesh(new THREE.CircleGeometry(1.65, 36), glowMaterial);
   const facing = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
 
-  dot.position.copy(position);
-  ring.position.copy(normal.clone().multiplyScalar(EARTH_RADIUS * 1.011));
-  dot.quaternion.copy(facing);
+  core.position.copy(position);
+  ring.position.copy(normal.clone().multiplyScalar(EARTH_RADIUS * 1.013));
+  glow.position.copy(normal.clone().multiplyScalar(EARTH_RADIUS * 1.0115));
+  core.quaternion.copy(facing);
   ring.quaternion.copy(facing);
-  group.add(dot, ring);
+  glow.quaternion.copy(facing);
+  core.renderOrder = 7;
+  ring.renderOrder = 6;
+  glow.renderOrder = 5;
+  group.add(glow, ring, core);
 
-  return { group, ring, dotMaterial, ringMaterial };
+  return { coreMaterial, glow, glowMaterial, group, ring, ringMaterial };
 }
 
 function latitudeLongitudeToNormal(latitude: number, longitude: number): THREE.Vector3 {
@@ -709,26 +922,34 @@ function createOrbiterMaterials(): {
   body: THREE.MeshStandardMaterial;
   detail: THREE.MeshStandardMaterial;
   panel: THREE.MeshStandardMaterial;
+  panelFrame: THREE.MeshStandardMaterial;
 } {
   return {
     body: new THREE.MeshStandardMaterial({
-      color: PALETTES.dark.body,
-      metalness: 0.72,
-      roughness: 0.28,
-    }),
-    detail: new THREE.MeshStandardMaterial({
-      color: PALETTES.dark.panelEdge,
-      emissive: 0x064860,
-      emissiveIntensity: 0.45,
-      metalness: 0.48,
+      color: 0xd9e2e7,
+      metalness: 0.42,
       roughness: 0.32,
     }),
+    detail: new THREE.MeshStandardMaterial({
+      color: 0xc99545,
+      emissive: 0x2e1704,
+      emissiveIntensity: 0.2,
+      metalness: 0.56,
+      roughness: 0.3,
+    }),
     panel: new THREE.MeshStandardMaterial({
-      color: PALETTES.dark.panel,
-      emissive: PALETTES.dark.panelEdge,
-      emissiveIntensity: 0.16,
-      metalness: 0.35,
-      roughness: 0.5,
+      color: 0x0a315c,
+      emissive: 0x041426,
+      emissiveIntensity: 0.24,
+      metalness: 0.28,
+      roughness: 0.42,
+    }),
+    panelFrame: new THREE.MeshStandardMaterial({
+      color: 0x7bbbd0,
+      emissive: 0x062b3a,
+      emissiveIntensity: 0.18,
+      metalness: 0.5,
+      roughness: 0.3,
     }),
   };
 }
@@ -741,7 +962,7 @@ function createOrbiterRuntime(
   const model =
     definition.kind === 'station'
       ? createStationModel(definition.size, materials)
-      : createSatelliteModel(definition.size, materials);
+      : createSatelliteModel(definition, materials);
   model.name = definition.id;
   parent.add(model);
 
@@ -770,18 +991,39 @@ function createOrbiterRuntime(
 }
 
 function createSatelliteModel(
-  scale: number,
+  definition: OrbiterDefinition,
   materials: ReturnType<typeof createOrbiterMaterials>,
 ): THREE.Group {
+  const accent = materials.panelFrame.clone();
+  accent.color.set(definition.colour);
+  accent.emissive.set(definition.colour).multiplyScalar(0.12);
+
+  if (definition.variant === 'cube') {
+    return createCubeSatellite(definition.size, materials, accent);
+  }
+
+  if (definition.variant === 'weather') {
+    return createWeatherSatellite(definition.size, materials, accent);
+  }
+
+  return createRelaySatellite(definition.size, materials, accent);
+}
+
+function createRelaySatellite(
+  scale: number,
+  materials: ReturnType<typeof createOrbiterMaterials>,
+  accent: THREE.MeshStandardMaterial,
+): THREE.Group {
   const group = new THREE.Group();
-  const body = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.55, 2.8), materials.body);
-  const panelGeometry = new THREE.BoxGeometry(4.4, 0.12, 1.65);
+  const body = new THREE.Mesh(new THREE.BoxGeometry(2.1, 1.5, 2.7), materials.body);
+  const panelGeometry = new THREE.BoxGeometry(4.3, 0.1, 1.65);
   const leftPanel = new THREE.Mesh(panelGeometry, materials.panel);
   const rightPanel = new THREE.Mesh(panelGeometry, materials.panel);
   const boomGeometry = new THREE.CylinderGeometry(0.1, 0.1, 4, 8);
   const leftBoom = new THREE.Mesh(boomGeometry, materials.detail);
   const rightBoom = new THREE.Mesh(boomGeometry, materials.detail);
   const antenna = new THREE.Mesh(new THREE.ConeGeometry(0.74, 0.58, 20, 1, true), materials.detail);
+  const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.17, 12, 8), accent);
 
   leftPanel.position.x = -4.35;
   rightPanel.position.x = 4.35;
@@ -791,7 +1033,55 @@ function createSatelliteModel(
   rightBoom.position.x = 2.25;
   antenna.rotation.x = Math.PI / 2;
   antenna.position.z = 1.7;
-  group.add(body, leftBoom, rightBoom, leftPanel, rightPanel, antenna);
+  beacon.position.set(0, 0.88, 0.25);
+  group.add(body, leftBoom, rightBoom, leftPanel, rightPanel, antenna, beacon);
+  group.scale.setScalar(scale);
+  return group;
+}
+
+function createCubeSatellite(
+  scale: number,
+  materials: ReturnType<typeof createOrbiterMaterials>,
+  accent: THREE.MeshStandardMaterial,
+): THREE.Group {
+  const group = new THREE.Group();
+  const body = new THREE.Mesh(new THREE.BoxGeometry(1.65, 1.65, 2.3), materials.body);
+  const panelGeometry = new THREE.BoxGeometry(2.8, 0.09, 1.25);
+  const leftPanel = new THREE.Mesh(panelGeometry, materials.panel);
+  const rightPanel = new THREE.Mesh(panelGeometry, materials.panel);
+  const aerial = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 2.7, 8), accent);
+  const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 8), accent);
+
+  leftPanel.position.x = -2.2;
+  rightPanel.position.x = 2.2;
+  aerial.rotation.x = Math.PI / 2;
+  aerial.position.z = 2.25;
+  beacon.position.set(0, 0.92, 0.2);
+  group.add(body, leftPanel, rightPanel, aerial, beacon);
+  group.scale.setScalar(scale);
+  return group;
+}
+
+function createWeatherSatellite(
+  scale: number,
+  materials: ReturnType<typeof createOrbiterMaterials>,
+  accent: THREE.MeshStandardMaterial,
+): THREE.Group {
+  const group = new THREE.Group();
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.88, 0.72, 2.7, 18), materials.body);
+  const panel = new THREE.Mesh(new THREE.BoxGeometry(5.7, 0.1, 1.8), materials.panel);
+  const panelRail = new THREE.Mesh(new THREE.BoxGeometry(5.9, 0.16, 0.09), accent);
+  const dish = new THREE.Mesh(new THREE.ConeGeometry(1.05, 0.58, 24, 1, true), materials.detail);
+  const dishMast = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.1, 8), accent);
+
+  body.rotation.x = Math.PI / 2;
+  panel.position.y = -0.15;
+  panelRail.position.set(0, -0.22, 0);
+  dish.rotation.x = -Math.PI / 2;
+  dish.position.z = 1.75;
+  dishMast.rotation.x = Math.PI / 2;
+  dishMast.position.z = 1.2;
+  group.add(body, panel, panelRail, dish, dishMast);
   group.scale.setScalar(scale);
   return group;
 }
@@ -802,7 +1092,10 @@ function createStationModel(
 ): THREE.Group {
   const group = new THREE.Group();
   const articulation = new THREE.Group();
-  const truss = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 9.5, 10), materials.detail);
+  const truss = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.16, 0.16, 9.5, 10),
+    materials.panelFrame,
+  );
   truss.rotation.z = Math.PI / 2;
   const core = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 0.72, 3.6, 18), materials.body);
   core.rotation.x = Math.PI / 2;
@@ -811,6 +1104,12 @@ function createStationModel(
     const panel = new THREE.Mesh(new THREE.BoxGeometry(2.05, 0.12, 4.4), materials.panel);
     panel.position.x = x;
     articulation.add(panel);
+  }
+
+  for (const x of [-1.15, 1.15]) {
+    const radiator = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.08, 2.2), materials.body);
+    radiator.position.set(x, 0.18, -1.45);
+    articulation.add(radiator);
   }
 
   for (const x of [-2.3, 0, 2.3]) {
@@ -830,9 +1129,14 @@ function createStationModel(
 function orientAlongTangent(
   model: THREE.Group,
   tangent: { x: number; y: number; z: number },
+  position: { x: number; y: number; z: number },
 ): void {
-  const direction = new THREE.Vector3(tangent.x, tangent.y, tangent.z).normalize();
-  model.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), direction);
+  ATTITUDE_FORWARD.set(tangent.x, tangent.y, tangent.z).normalize();
+  ATTITUDE_OUTWARD.set(position.x, position.y, position.z).normalize();
+  ATTITUDE_RIGHT.crossVectors(ATTITUDE_OUTWARD, ATTITUDE_FORWARD).normalize();
+  ATTITUDE_UP.crossVectors(ATTITUDE_FORWARD, ATTITUDE_RIGHT).normalize();
+  ATTITUDE_BASIS.makeBasis(ATTITUDE_RIGHT, ATTITUDE_UP, ATTITUDE_FORWARD);
+  model.quaternion.setFromRotationMatrix(ATTITUDE_BASIS);
 }
 
 function updateTrailColours(orbiter: OrbiterRuntime, colour: THREE.ColorRepresentation): void {

@@ -7,22 +7,8 @@ const { footer, navigation } = defaultCatalogue;
 
 <footer class="site-footer">
   <div class="container">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <a class="brand" href="/" aria-label="Kumwe home">
-          <img class="brand-mark" src="/brand/kumwe-symbol.svg" width="42" height="42" alt="" />
-          <img
-            class="brand-word"
-            src="/brand/kumwe-wordmark.svg"
-            width="140"
-            height="40"
-            alt="Kumwe"
-          />
-        </a>
-        <p>{footer.summary}</p>
-      </div>
-      <div class="footer-column">
-        <h2>{footer.projectLinks}</h2>
+    <div class="footer-console">
+      <nav class="footer-navigation" aria-label={footer.projectLinks}>
         {
           FOOTER_NAVIGATION.map((item) => (
             <a
@@ -34,23 +20,18 @@ const { footer, navigation } = defaultCatalogue;
             </a>
           ))
         }
-      </div>
-      <div class="footer-column">
-        <h2>{footer.legalLinks}</h2>
-        <a href={EXTERNAL_LINKS.apacheLicence} target="_blank" rel="noreferrer"
-          >Apache License 2.0</a
-        >
         <a href={EXTERNAL_LINKS.websiteRepository} target="_blank" rel="noreferrer"
           >Website source</a
         >
-        <a href="/open-source/">Brand and licensing</a>
+      </nav>
+      <div class="footer-attribution">
+        <a class="made-with-love" href={SITE.ownerUrl} target="_blank" rel="noreferrer">
+          Made with <span aria-label="love">♥</span> by VAST Development Method
+        </a>
+        <span aria-hidden="true">·</span>
+        <a href={EXTERNAL_LINKS.apacheLicence} target="_blank" rel="noreferrer">Apache 2.0</a>
       </div>
     </div>
-    <div class="footer-bottom">
-      <p>{footer.copyright} {footer.trademark}</p>
-      <a class="made-with-love" href={SITE.ownerUrl} target="_blank" rel="noreferrer">
-        Made with <span aria-label="love">♥</span> by VAST Development Method
-      </a>
-    </div>
+    <p class="footer-legal">{footer.copyright} {footer.trademark}</p>
   </div>
 </footer>
