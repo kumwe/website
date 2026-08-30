@@ -1,0 +1,60 @@
+---
+import { defaultCatalogue, plannedLocaleList } from '../i18n';
+
+const { language } = defaultCatalogue;
+---
+
+<details class="language-menu" data-language-menu>
+  <summary class="language-summary" aria-label={`${language.label}: ${language.current}`}>
+    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"></circle>
+      <path
+        d="M3.5 12h17M12 3c2.5 2.5 3.7 5.5 3.7 9S14.5 18.5 12 21c-2.5-2.5-3.7-5.5-3.7-9S9.5 5.5 12 3Z"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.7"
+        stroke-linecap="round"></path>
+    </svg>
+    <span>EN-GB</span>
+  </summary>
+  <div class="language-panel">
+    <h2>{language.label}</h2>
+    <p>{language.plannedDescription}</p>
+    <div class="locale-current">
+      <span>{language.current}</span>
+      <strong>{language.available}</strong>
+    </div>
+    <div class="locale-list" aria-label={language.planned}>
+      {
+        plannedLocaleList.map((locale) => (
+          <span class="locale-planned" title={`${locale.englishName} — ${language.planned}`}>
+            <span lang={locale.code} dir={locale.direction}>
+              {locale.nativeName}
+            </span>
+          </span>
+        ))
+      }
+    </div>
+  </div>
+</details>
+
+<script>
+  function initialiseLanguageMenus(): void {
+    for (const menu of document.querySelectorAll<HTMLDetailsElement>('[data-language-menu]')) {
+      if (menu.dataset.ready === 'true') continue;
+      menu.dataset.ready = 'true';
+      document.addEventListener('pointerdown', (event) => {
+        if (menu.open && !menu.contains(event.target as Node)) menu.open = false;
+      });
+      menu.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          menu.open = false;
+          menu.querySelector<HTMLElement>('summary')?.focus();
+        }
+      });
+    }
+  }
+
+  initialiseLanguageMenus();
+  document.addEventListener('astro:page-load', initialiseLanguageMenus);
+</script>

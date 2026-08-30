@@ -1,0 +1,44 @@
+---
+import { repositoriesByGroup, type RepositoryGroup } from '../data';
+import { defaultCatalogue } from '../i18n';
+import PageLayout from '../layouts/PageLayout.astro';
+
+const groups: RepositoryGroup[] = ['foundation', 'business-runtime', 'delivery'];
+---
+
+<PageLayout pageId="packages">
+  <section class="section section-compact" aria-labelledby="package-directory">
+    <div class="container">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">PUBLIC REPOSITORY BOUNDARIES</span>
+          <h2 id="package-directory">The planned package directory.</h2>
+        </div>
+        <p>
+          These repositories expose intended ownership boundaries for collaboration. Their current
+          status is planned unless a repository explicitly publishes a release.
+        </p>
+      </div>
+      {
+        groups.map((group) => (
+          <section style="margin-block-start: 2.5rem;" aria-labelledby={`group-${group}`}>
+            <h3 id={`group-${group}`}>{defaultCatalogue.repositoryGroups[group]}</h3>
+            <div class="repository-grid">
+              {repositoriesByGroup[group]
+                ?.filter((repository) => !repository.featured)
+                .map((repository) => (
+                  <a class="repository-tile" href={repository.url} target="_blank" rel="noreferrer">
+                    <strong>{repository.name}</strong>
+                    <span>
+                      {defaultCatalogue.repositoryStages[repository.stage]} ·{' '}
+                      {defaultCatalogue.repositories[repository.id].title}
+                    </span>
+                  </a>
+                ))}
+            </div>
+          </section>
+        ))
+      }
+    </div>
+  </section>
+</PageLayout>

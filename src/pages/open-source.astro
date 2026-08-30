@@ -1,0 +1,35 @@
+---
+import { featuredRepositories } from '../data';
+import { defaultCatalogue } from '../i18n';
+import PageLayout from '../layouts/PageLayout.astro';
+---
+
+<PageLayout pageId="open-source">
+  <section class="section section-compact" aria-labelledby="source-directory">
+    <div class="container">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">START HERE</span>
+          <h2 id="source-directory">The active ecosystem repositories.</h2>
+        </div>
+        <p>
+          Licences vary across the ecosystem. Each repository is governed by the licence published
+          with that repository.
+        </p>
+      </div>
+      <div class="repository-grid">
+        {
+          featuredRepositories.map((repository) => (
+            <a class="repository-tile" href={repository.url} target="_blank" rel="noreferrer">
+              <strong>{repository.name}</strong>
+              <span>
+                {defaultCatalogue.repositoryStages[repository.stage]} ·{' '}
+                {defaultCatalogue.repositories[repository.id].title}
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</PageLayout>

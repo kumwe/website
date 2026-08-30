@@ -1,0 +1,103 @@
+---
+import { pages, type PageId } from '../data';
+import { defaultCatalogue } from '../i18n';
+import type { SectionCopy } from '../i18n/types';
+import SiteLayout from './SiteLayout.astro';
+
+interface Props {
+  pageId: Exclude<PageId, 'home'>;
+}
+
+const { pageId } = Astro.props;
+const copy = defaultCatalogue.pages[pageId];
+const page = pages[pageId];
+const sections = copy.sections as readonly SectionCopy[];
+const isExternal = (href: string) => href.startsWith('http');
+---
+
+<SiteLayout title={copy.metaTitle} description={copy.metaDescription}>
+  <header class="page-hero">
+    <div class="container page-hero-content">
+      <span class="eyebrow">{copy.hero.eyebrow}</span>
+      <h1>{copy.hero.title}</h1>
+      <p class="hero-summary">{copy.hero.summary}</p>
+      <div class="hero-actions">
+        <a
+          class="button button-primary"
+          href={page.primaryActionHref}
+          target={isExternal(page.primaryActionHref) ? '_blank' : undefined}
+          rel={isExternal(page.primaryActionHref) ? 'noreferrer' : undefined}
+        >
+          {copy.hero.primaryAction.label}
+          <span aria-hidden="true">↗</span>
+        </a>
+        <a
+          class="button button-secondary"
+          href={page.secondaryActionHref}
+          target={isExternal(page.secondaryActionHref) ? '_blank' : undefined}
+          rel={isExternal(page.secondaryActionHref) ? 'noreferrer' : undefined}
+        >
+          {copy.hero.secondaryAction.label}
+        </a>
+      </div>
+      {
+        copy.hero.status && (
+          <span class="status-pill" style="margin-block-start: 2rem;">
+            <span class="status-dot" />
+            {copy.hero.status}
+          </span>
+        )
+      }
+    </div>
+  </header>
+
+  <div class="container">
+    {
+      sections.map((section, index) => (
+        <section class="content-section" aria-labelledby={`${pageId}-section-${index}`}>
+          <div>
+            {section.eyebrow && <span class="section-kicker">{section.eyebrow}</span>}
+            <h2 id={`${pageId}-section-${index}`}>{section.title}</h2>
+          </div>
+          <div class="content-section-copy">
+            <p>{section.body}</p>
+            {section.note && <p class="content-section-note">{section.note}</p>}
+            {section.items && (
+              <div class="feature-list">
+                {section.items.map((item) => (
+                  <article class="feature-item">
+                    {item.eyebrow && <span class="section-kicker">{item.eyebrow}</span>}
+                    <h3>{item.title}</h3>
+                    <p>{item.description}</p>
+                  </article>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      ))
+    }
+  </div>
+
+  <slot />
+
+  {
+    copy.closing && (
+      <section class="container closing-panel" aria-labelledby={`${pageId}-closing`}>
+        <h2 id={`${pageId}-closing`}>{copy.closing.title}</h2>
+        <p>{copy.closing.body}</p>
+        <div class="section-actions">
+          <a
+            class="button button-primary"
+            href={page.primaryActionHref}
+            target={isExternal(page.primaryActionHref) ? '_blank' : undefined}
+            rel={isExternal(page.primaryActionHref) ? 'noreferrer' : undefined}
+          >
+            {copy.closing.action.label}
+            <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </section>
+    )
+  }
+</SiteLayout>
