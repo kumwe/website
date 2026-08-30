@@ -85,7 +85,7 @@ test.describe('home page', () => {
     await expect(githubAction).toHaveAttribute('href', 'https://github.com/kumwe');
     await expect(page.getByText('Open source · Apache 2.0', { exact: true })).toBeVisible();
 
-    const productDock = page.locator('section').filter({
+    const productDock = page.locator('.product-dock').filter({
       has: page.getByRole('heading', { name: 'Built to move together.', exact: true }),
     });
     await expect(productDock).toHaveCount(1);

@@ -19,6 +19,8 @@ html[data-theme='light'] {
   --mission-hairline: rgb(0 99 141 / 17%);
   --mission-hairline-strong: rgb(0 128 173 / 38%);
   --mission-shadow: 0 2rem 6rem rgb(35 91 117 / 14%);
+  --accent: #005d82;
+  --text-muted: #425f73;
 }
 
 body {
