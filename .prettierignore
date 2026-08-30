@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.astro/
+.rsync-tmp/
+.visual-qa.mjs
+coverage/
+playwright-report/
+test-results/
+package-lock.json
+public/vendor/

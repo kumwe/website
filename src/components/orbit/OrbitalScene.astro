@@ -1,0 +1,174 @@
+---
+interface Props {
+  class?: string;
+  darkTexture?: string;
+  lightTexture?: string;
+  quality?: 'auto' | 'high';
+}
+
+const {
+  class: className,
+  darkTexture = '/textures/earth-night.webp',
+  lightTexture = '/textures/earth-day.webp',
+  quality = 'auto',
+} = Astro.props;
+---
+
+<div
+  class:list={['orbital-scene', className]}
+  data-dark-texture={darkTexture}
+  data-light-texture={lightTexture}
+  data-orbital-scene
+  data-quality={quality}
+  aria-hidden="true"
+>
+  <div class="orbital-scene__fallback" role="presentation">
+    <span class="orbital-scene__fallback-earth"></span>
+    <span class="orbital-scene__fallback-orbit"></span>
+  </div>
+</div>
+
+<script>
+  import { mountOrbitalScene, type OrbitalSceneController } from './orbital-scene';
+
+  const controllers = new Map<HTMLElement, OrbitalSceneController>();
+
+  function initialiseOrbitalScenes(): void {
+    const scenes = document.querySelectorAll<HTMLElement>('[data-orbital-scene]');
+    for (const scene of scenes) {
+      if (controllers.has(scene) || scene.dataset.orbitInitialised === 'true') continue;
+      scene.dataset.orbitInitialised = 'true';
+      const controller = mountOrbitalScene(scene, {
+        darkTextureUrl: scene.dataset.darkTexture,
+        lightTextureUrl: scene.dataset.lightTexture,
+        quality: scene.dataset.quality === 'high' ? 'high' : 'auto',
+      });
+      controllers.set(scene, controller);
+    }
+  }
+
+  function destroyOrbitalScenes(): void {
+    for (const controller of controllers.values()) controller.destroy();
+    controllers.clear();
+  }
+
+  initialiseOrbitalScenes();
+  document.addEventListener('astro:page-load', initialiseOrbitalScenes);
+  document.addEventListener('astro:before-swap', destroyOrbitalScenes);
+</script>
+
+<style>
+  .orbital-scene {
+    contain: layout paint style;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    position: absolute;
+    user-select: none;
+  }
+
+  .orbital-scene__fallback {
+    --fallback-atmosphere: rgb(43 216 255 / 58%);
+    --fallback-earth-1: #0f5273;
+    --fallback-earth-2: #061c32;
+    --fallback-land: rgb(49 198 191 / 28%);
+    background:
+      radial-gradient(circle at 12% 18%, rgb(210 247 255 / 70%) 0 1px, transparent 1.7px),
+      radial-gradient(circle at 28% 42%, rgb(255 255 255 / 55%) 0 0.8px, transparent 1.5px),
+      radial-gradient(circle at 42% 14%, rgb(186 238 255 / 68%) 0 1.1px, transparent 1.8px),
+      radial-gradient(circle at 68% 24%, rgb(255 255 255 / 50%) 0 0.8px, transparent 1.5px),
+      radial-gradient(circle at 86% 12%, rgb(191 242 255 / 60%) 0 1px, transparent 1.8px);
+    inset: 0;
+    opacity: 1;
+    position: absolute;
+    transition: opacity 600ms ease;
+  }
+
+  .orbital-scene.is-ready .orbital-scene__fallback {
+    opacity: 0;
+  }
+
+  .orbital-scene__fallback-earth {
+    aspect-ratio: 1;
+    background:
+      radial-gradient(ellipse at 45% 38%, var(--fallback-land) 0 8%, transparent 9%),
+      radial-gradient(ellipse at 54% 53%, var(--fallback-land) 0 17%, transparent 18%),
+      radial-gradient(circle at 36% 31%, rgb(255 255 255 / 14%), transparent 22%),
+      linear-gradient(140deg, var(--fallback-earth-1), var(--fallback-earth-2) 70%);
+    border-radius: 50%;
+    bottom: -24%;
+    box-shadow:
+      0 0 1.4rem var(--fallback-atmosphere),
+      0 0 5rem rgb(19 173 218 / 24%),
+      inset -2rem -2rem 4rem rgb(0 4 15 / 58%);
+    position: absolute;
+    right: -3%;
+    width: min(62rem, 66vw);
+  }
+
+  .orbital-scene__fallback-orbit {
+    border: 1px solid rgb(83 224 244 / 24%);
+    border-radius: 50%;
+    bottom: 2%;
+    height: 38%;
+    mask-image: linear-gradient(105deg, transparent 20%, #000 44%, #000 66%, transparent 82%);
+    position: absolute;
+    right: -6%;
+    transform: rotate(-22deg);
+    width: 65%;
+    -webkit-mask-image: linear-gradient(
+      105deg,
+      transparent 20%,
+      #000 44%,
+      #000 66%,
+      transparent 82%
+    );
+  }
+
+  :global(html[data-theme='light']) .orbital-scene__fallback,
+  :global(html[data-resolved-theme='light']) .orbital-scene__fallback,
+  :global(html.light) .orbital-scene__fallback {
+    --fallback-atmosphere: rgb(11 128 166 / 36%);
+    --fallback-earth-1: #8ecad4;
+    --fallback-earth-2: #d6e7e9;
+    --fallback-land: rgb(0 120 111 / 24%);
+  }
+
+  @media (prefers-color-scheme: light) {
+    .orbital-scene__fallback {
+      --fallback-atmosphere: rgb(11 128 166 / 36%);
+      --fallback-earth-1: #8ecad4;
+      --fallback-earth-2: #d6e7e9;
+      --fallback-land: rgb(0 120 111 / 24%);
+    }
+  }
+
+  :global(html[data-theme='dark']) .orbital-scene__fallback,
+  :global(html[data-resolved-theme='dark']) .orbital-scene__fallback,
+  :global(html.dark) .orbital-scene__fallback {
+    --fallback-atmosphere: rgb(43 216 255 / 58%);
+    --fallback-earth-1: #0f5273;
+    --fallback-earth-2: #061c32;
+    --fallback-land: rgb(49 198 191 / 28%);
+  }
+
+  @media (max-width: 47.99rem) {
+    .orbital-scene__fallback-earth {
+      bottom: -14%;
+      right: -30%;
+      width: min(42rem, 118vw);
+    }
+
+    .orbital-scene__fallback-orbit {
+      bottom: 10%;
+      right: -28%;
+      width: 110%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .orbital-scene__fallback {
+      transition: none;
+    }
+  }
+</style>

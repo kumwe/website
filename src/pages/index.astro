@@ -1,0 +1,215 @@
+---
+import OrbitalScene from '../components/orbit/OrbitalScene.astro';
+import { featuredRepositories, pages } from '../data';
+import { defaultCatalogue } from '../i18n';
+import SiteLayout from '../layouts/SiteLayout.astro';
+
+const copy = defaultCatalogue.pages.home;
+const { repositoryStages, repositories } = defaultCatalogue;
+const firstSection = copy.sections[0];
+const extensionSection = copy.sections[1];
+const openSection = copy.sections[2];
+const productCards = [
+  { id: 'platform', index: '01', href: '/platform/', status: 'v2 alpha' },
+  { id: 'studio', index: '02', href: '/studio/', status: 'In development' },
+  { id: 'extensions', index: '03', href: '/extensions/', status: 'SDK published' },
+  { id: 'clients', index: '04', href: '/clients/', status: 'Proposal / planned' },
+  { id: 'packages', index: '05', href: '/packages/', status: 'Ecosystem direction' },
+  { id: 'roadmap', index: '06', href: '/roadmap/', status: 'Evidence led' },
+] as const;
+---
+
+<SiteLayout title={copy.metaTitle} description={copy.metaDescription}>
+  <section class="hero-home" aria-labelledby="home-title">
+    <div class="orbital-frame">
+      <OrbitalScene />
+    </div>
+    <div class="container">
+      <div class="hero-content">
+        <span class="eyebrow">{copy.hero.eyebrow}</span>
+        <h1 class="hero-title" id="home-title">
+          One platform.<br /><span class="gradient-text">Every connection.</span>
+        </h1>
+        <p class="hero-summary">{copy.hero.summary}</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href={pages.home.primaryActionHref}>
+            {copy.hero.primaryAction.label}<span aria-hidden="true">→</span>
+          </a>
+          <a
+            class="button button-secondary"
+            href={pages.home.secondaryActionHref}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={copy.hero.secondaryAction.accessibleLabel}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"
+              ><path
+                fill="currentColor"
+                d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.86c-2.78.6-3.37-1.18-3.37-1.18-.45-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.33 1.08 2.9.83.09-.64.35-1.08.63-1.33-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02A9.6 9.6 0 0 1 12 6.84a9.6 9.6 0 0 1 2.5.34c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.75c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"
+              ></path></svg
+            >
+            {copy.hero.secondaryAction.label}
+          </a>
+        </div>
+        <div class="hero-telemetry" aria-label="Project telemetry">
+          <div class="telemetry-item">
+            <div class="telemetry-value">GATE A · PASSED</div>
+            <div class="telemetry-label">App v2 alpha</div>
+          </div>
+          <div class="telemetry-item">
+            <div class="telemetry-value">EN-GB</div>
+            <div class="telemetry-label">Source locale</div>
+          </div>
+          <div class="telemetry-item">
+            <div class="telemetry-value">APACHE-2.0</div>
+            <div class="telemetry-label">Website &amp; App</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container status-band" aria-label="Current project status">
+    <div class="status-band-inner">
+      <div class="status-band-item">
+        <strong>App v2 alpha</strong>
+        <span>Gate A passed · Gate B preparation underway</span>
+      </div>
+      <div class="status-band-item">
+        <strong>Extension SDK published</strong>
+        <span>App adoption continues in the open</span>
+      </div>
+      <div class="status-band-item">
+        <strong>Native clients planned</strong>
+        <span>Dart proposal first · Flutter follows</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="section" aria-labelledby="ecosystem-title">
+    <div class="container">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">THE KUMWE ECOSYSTEM</span>
+          <h2 id="ecosystem-title">A platform built to orbit one core.</h2>
+        </div>
+        <p>
+          Each project has a clear boundary and an explicit maturity label. Explore what works now,
+          what is being integrated and what comes next.
+        </p>
+      </div>
+      <div class="card-grid">
+        {
+          productCards.map((card) => {
+            const pageCopy = defaultCatalogue.pages[card.id];
+            return (
+              <article class="glass-card">
+                <div class="card-index">
+                  <>
+                    <span>{card.index} · KUMWE</span>
+                    <span class="card-status">{card.status}</span>
+                  </>
+                </div>
+                <h3>{pageCopy.hero.title}</h3>
+                <p>{pageCopy.hero.summary}</p>
+                <a class="card-link" href={card.href}>
+                  Explore {defaultCatalogue.navigation[card.id]} <span aria-hidden="true">→</span>
+                </a>
+              </article>
+            );
+          })
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-compact" aria-labelledby="rules-title">
+    <div class="container">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">{firstSection.eyebrow}</span>
+          <h2 id="rules-title">{firstSection.title}</h2>
+        </div>
+        <p>{firstSection.body}</p>
+      </div>
+      <div class="card-grid">
+        {
+          firstSection.items?.map((item, index) => (
+            <article class="glass-card">
+              <div class="card-index">
+                <>
+                  <span>0{index + 1}</span>
+                  <span>{item.eyebrow}</span>
+                </>
+              </div>
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="contract-title">
+    <div class="container manifesto">
+      <div class="manifesto-visual" aria-hidden="true"></div>
+      <div class="manifesto-copy">
+        <span class="section-kicker">{extensionSection.eyebrow}</span>
+        <h2 id="contract-title">{extensionSection.title}</h2>
+        <p>{extensionSection.body}</p>
+        {extensionSection.note && <p class="content-section-note">{extensionSection.note}</p>}
+        <div class="section-actions">
+          <a class="button button-secondary" href="/extensions/"
+            >Explore extensions <span aria-hidden="true">→</span></a
+          >
+          <a class="button button-secondary" href="/packages/">Browse packages</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-compact" aria-labelledby="open-title">
+    <div class="container">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">{openSection.eyebrow}</span>
+          <h2 id="open-title">{openSection.title}</h2>
+        </div>
+        <p>{openSection.body}</p>
+      </div>
+      <div class="repository-grid">
+        {
+          featuredRepositories.slice(0, 6).map((repository) => (
+            <a class="repository-tile" href={repository.url} target="_blank" rel="noreferrer">
+              <strong>{repository.name}</strong>
+              <span>
+                {repositoryStages[repository.stage]} · {repositories[repository.id].title}
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  {
+    copy.closing && (
+      <section class="container closing-panel" aria-labelledby="home-closing">
+        <h2 id="home-closing">{copy.closing.title}</h2>
+        <p>{copy.closing.body}</p>
+        <div class="section-actions">
+          <a
+            class="button button-primary"
+            href={pages.home.secondaryActionHref}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {copy.closing.action.label}
+            <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </section>
+    )
+  }
+</SiteLayout>

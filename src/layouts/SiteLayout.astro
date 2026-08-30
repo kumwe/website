@@ -1,0 +1,67 @@
+---
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import { SITE } from '../data';
+import { defaultCatalogue } from '../i18n';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  noIndex?: boolean;
+}
+
+const {
+  title = defaultCatalogue.site.title,
+  description = defaultCatalogue.site.description,
+  noIndex = false,
+} = Astro.props;
+const canonical = new URL(Astro.url.pathname, SITE.url);
+---
+
+<!doctype html>
+<html lang="en-GB" dir="ltr" data-theme="dark" data-theme-preference="system">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#020713" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#edf6fb" media="(prefers-color-scheme: light)" />
+    <meta name="description" content={description} />
+    {noIndex && <meta name="robots" content="noindex" />}
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Kumwe" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <title>{title}</title>
+    <script is:inline>
+      (() => {
+        const key = 'kumwe-theme';
+        const saved = localStorage.getItem(key);
+        const preference = ['system', 'light', 'dark'].includes(saved) ? saved : 'system';
+        const resolved =
+          preference === 'system'
+            ? matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light'
+            : preference;
+        document.documentElement.dataset.themePreference = preference;
+        document.documentElement.dataset.theme = resolved;
+      })();
+    </script>
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">{defaultCatalogue.accessibility.skipToContent}</a>
+    <SiteHeader currentPath={Astro.url.pathname} />
+    <main class="page-main" id="main-content">
+      <slot />
+    </main>
+    <SiteFooter />
+  </body>
+</html>
