@@ -51,6 +51,36 @@ export const enGB = {
     projectStatus: 'Project status',
     plannedProject: 'Planned — repository available, public API not yet shipped',
   },
+  homeExperience: {
+    trustLine: 'Open source · Apache 2.0',
+    ecosystemTitle: 'Built to move together.',
+    products: [
+      {
+        id: 'platform',
+        title: 'App Core',
+        description: 'The secure foundation for content, data and workflows.',
+        href: '/platform/',
+      },
+      {
+        id: 'studio',
+        title: 'Studio',
+        description: 'Compose, model and manage experiences with confidence.',
+        href: '/studio/',
+      },
+      {
+        id: 'extensions',
+        title: 'Extension SDK',
+        description: 'Build powerful extensions that integrate seamlessly.',
+        href: '/extensions/',
+      },
+      {
+        id: 'clients',
+        title: 'Dart SDK + Clients',
+        description: 'Type-safe SDK and clients for every surface.',
+        href: '/clients/',
+      },
+    ],
+  },
   repositoryStages: {
     alpha: 'v2 alpha',
     'in-development': 'In development',
@@ -223,15 +253,16 @@ export const enGB = {
       metaDescription:
         'Build governed content and business applications on one secure, extensible open-source platform.',
       hero: {
-        eyebrow: 'OPEN-SOURCE APPLICATION PLATFORM',
+        eyebrow: 'ONE CORE · EVERY SURFACE',
         status: 'App v2 alpha · Gate A passed · Gate B preparation',
-        title: 'One platform. Every connection.',
+        title: 'Publish your world. Run your business. Extend everything.',
+        titleLines: ['Publish your world.', 'Run your business.', 'Extend everything.'],
         summary:
-          'Kumwe brings content, business data, workflows and delivery surfaces into one governed system — open at the core and designed to grow through extensions, SDKs and clients.',
+          'A secure, extensible CMS and application platform for content, business data, workflows, integrations and digital experiences.',
         primaryAction: { label: 'Explore the platform' },
         secondaryAction: {
-          label: 'View App on GitHub',
-          accessibleLabel: 'View Kumwe App on GitHub',
+          label: 'View on GitHub',
+          accessibleLabel: 'View Kumwe on GitHub',
         },
       },
       sections: [

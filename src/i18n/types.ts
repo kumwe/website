@@ -27,6 +27,7 @@ export interface PageCopy {
     readonly eyebrow: string;
     readonly status?: string;
     readonly title: string;
+    readonly titleLines?: readonly string[];
     readonly summary: string;
     readonly primaryAction: ActionCopy;
     readonly secondaryAction: ActionCopy;
@@ -79,6 +80,16 @@ export interface WebsiteMessagesShape {
     readonly readDocumentation: string;
     readonly projectStatus: string;
     readonly plannedProject: string;
+  };
+  readonly homeExperience: {
+    readonly trustLine: string;
+    readonly ecosystemTitle: string;
+    readonly products: readonly {
+      readonly id: 'platform' | 'studio' | 'extensions' | 'clients';
+      readonly title: string;
+      readonly description: string;
+      readonly href: string;
+    }[];
   };
   readonly repositoryStages: Record<RepositoryStage, string>;
   readonly repositoryGroups: Record<RepositoryGroup, string>;

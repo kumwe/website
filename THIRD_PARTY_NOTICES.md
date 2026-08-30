@@ -6,13 +6,17 @@ duplicated here.
 
 ## Earth surface textures
 
-The following local files are resized, WebP-encoded derivatives of example assets distributed in
+The following local files are metadata-stripped, WebP-encoded derivatives of example assets
+distributed in
 [`three-globe` 2.45.2](https://www.npmjs.com/package/three-globe/v/2.45.2):
 
-| Local file                         | Upstream file                       | Transformation                                                       |
-| ---------------------------------- | ----------------------------------- | -------------------------------------------------------------------- |
-| `public/textures/earth-day.webp`   | `example/img/earth-blue-marble.jpg` | Resized from 4096×2048 to 2048×1024, metadata stripped, WebP encoded |
-| `public/textures/earth-night.webp` | `example/img/earth-night.jpg`       | Resized from 4096×2048 to 2048×1024, metadata stripped, WebP encoded |
+| Local file                            | Upstream file                       | Transformation                                                  |
+| ------------------------------------- | ----------------------------------- | --------------------------------------------------------------- |
+| `public/textures/earth-day.webp`      | `example/img/earth-blue-marble.jpg` | Original 4096×2048 dimensions retained; metadata stripped; WebP |
+| `public/textures/earth-night.webp`    | `example/img/earth-night.jpg`       | Original 4096×2048 dimensions retained; metadata stripped; WebP |
+| `public/textures/earth-clouds.webp`   | `example/clouds/clouds.png`         | Resized from 4096×2048 to 2048×1024; alpha retained; WebP       |
+| `public/textures/earth-topology.webp` | `example/img/earth-topology.png`    | Original 2048×1024 dimensions retained; metadata stripped; WebP |
+| `public/textures/earth-water.webp`    | `example/img/earth-water.png`       | Original 1600×800 dimensions retained; metadata stripped; WebP  |
 
 Upstream project: [vasturiano/three-globe](https://github.com/vasturiano/three-globe)
 

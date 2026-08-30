@@ -1,0 +1,341 @@
+---
+interface Props {
+  businessDescription?: string;
+  businessLabel?: string;
+  class?: string;
+  contentDescription?: string;
+  contentLabel?: string;
+  coreLabel?: string;
+  deliveryDescription?: string;
+  deliveryLabel?: string;
+}
+
+const {
+  businessDescription = 'Typed operations',
+  businessLabel = 'Business',
+  class: className,
+  contentDescription = 'Governed publishing',
+  contentLabel = 'Content',
+  coreLabel = 'Kumwe Core',
+  deliveryDescription = 'Every surface',
+  deliveryLabel = 'Delivery',
+} = Astro.props;
+---
+
+<div class:list={['core-system', className]} aria-hidden="true" role="presentation">
+  <svg class="core-system__diagram" viewBox="0 0 760 500" focusable="false">
+    <g class="core-system__grid">
+      <path d="M40 250h680M380 35v430"></path>
+      <circle cx="380" cy="250" r="185"></circle>
+      <circle cx="380" cy="250" r="112"></circle>
+    </g>
+
+    <g class="core-system__orbits">
+      <ellipse cx="380" cy="250" rx="292" ry="136" transform="rotate(-8 380 250)"></ellipse>
+      <ellipse cx="380" cy="250" rx="227" ry="190" transform="rotate(37 380 250)"></ellipse>
+    </g>
+
+    <g class="core-system__connections">
+      <path class="connection connection--content" d="M324 220C275 188 236 154 188 126"></path>
+      <path class="connection connection--business" d="M436 220C492 186 535 168 590 146"></path>
+      <path class="connection connection--delivery" d="M380 316C380 342 380 365 380 386"></path>
+      <path class="signal signal--content" d="M324 220C275 188 236 154 188 126"></path>
+      <path class="signal signal--business" d="M436 220C492 186 535 168 590 146"></path>
+      <path class="signal signal--delivery" d="M380 316C380 342 380 365 380 386"></path>
+    </g>
+
+    <g class="core-system__core" transform="translate(380 250)">
+      <circle class="core-system__core-halo" r="72"></circle>
+      <path class="core-system__core-shell" d="m0-57 49.4 28.5v57L0 57l-49.4-28.5v-57L0-57Z"></path>
+      <g class="core-system__core-cube">
+        <path d="m0-25 25 14.5v29L0 33l-25-14.5v-29L0-25Z"></path>
+        <path d="m-25-10.5 25 14.5 25-14.5M0 4v29"></path>
+      </g>
+      <text class="core-system__core-label" text-anchor="middle" y="88">{coreLabel}</text>
+    </g>
+
+    <g class="system-node system-node--content" transform="translate(156 108)">
+      <circle class="system-node__halo" r="58"></circle>
+      <path class="system-node__shell" d="m0-45 39 22.5v45L0 45l-39-22.5v-45L0-45Z"></path>
+      <g class="system-node__icon">
+        <path d="M-16-20h24l10 10v30h-34v-40Z"></path>
+        <path d="M8-20v10h10M-9 1H9M-9 10H6"></path>
+      </g>
+      <text class="system-node__label" text-anchor="middle" y="67">{contentLabel}</text>
+      <text class="system-node__description" text-anchor="middle" y="86">
+        {contentDescription}
+      </text>
+    </g>
+
+    <g class="system-node system-node--business" transform="translate(610 132)">
+      <circle class="system-node__halo" r="58"></circle>
+      <path class="system-node__shell" d="m0-45 39 22.5v45L0 45l-39-22.5v-45L0-45Z"></path>
+      <g class="system-node__icon">
+        <rect x="-19" y="-17" width="38" height="34" rx="3"></rect>
+        <path d="M-10-8h20M-10 0h7M3 0h7M-10 8h7M3 8h7"></path>
+      </g>
+      <text class="system-node__label" text-anchor="middle" y="67">{businessLabel}</text>
+      <text class="system-node__description" text-anchor="middle" y="86">
+        {businessDescription}
+      </text>
+    </g>
+
+    <g class="system-node system-node--delivery" transform="translate(380 400)">
+      <circle class="system-node__halo" r="58"></circle>
+      <path class="system-node__shell" d="m0-45 39 22.5v45L0 45l-39-22.5v-45L0-45Z"></path>
+      <g class="system-node__icon">
+        <circle r="19"></circle>
+        <path
+          d="M-19 0h38M0-19c5.5 5.2 8.2 11.5 8.2 19S5.5 13.8 0 19C-5.5 13.8-8.2 7.5-8.2 0S-5.5-13.8 0-19Z"
+        ></path>
+      </g>
+      <text class="system-node__label" text-anchor="middle" y="67">{deliveryLabel}</text>
+      <text class="system-node__description" text-anchor="middle" y="86">
+        {deliveryDescription}
+      </text>
+    </g>
+
+    <g class="core-system__telemetry">
+      <circle cx="92" cy="286" r="3"></circle>
+      <circle cx="670" cy="298" r="2"></circle>
+      <circle cx="495" cy="72" r="2.5"></circle>
+      <circle cx="274" cy="424" r="2"></circle>
+    </g>
+  </svg>
+</div>
+
+<style>
+  .core-system {
+    aspect-ratio: 1.52;
+    background:
+      radial-gradient(circle at 50% 48%, var(--glow, rgb(24 190 244 / 23%)), transparent 34%),
+      linear-gradient(
+        145deg,
+        color-mix(in srgb, var(--surface, rgb(8 22 42 / 72%)), transparent 8%),
+        color-mix(in srgb, var(--surface-subtle, rgb(13 35 61 / 56%)), transparent 28%)
+      );
+    border: 1px solid var(--line, rgb(139 201 232 / 16%));
+    border-radius: clamp(1.2rem, 3vw, 2rem);
+    box-shadow:
+      inset 0 1px rgb(255 255 255 / 5%),
+      0 1.5rem 4rem rgb(0 0 0 / 15%);
+    contain: layout paint style;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .core-system::before {
+    background-image:
+      linear-gradient(var(--line, rgb(139 201 232 / 16%)) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line, rgb(139 201 232 / 16%)) 1px, transparent 1px);
+    background-size: 3rem 3rem;
+    content: '';
+    inset: 0;
+    mask-image: radial-gradient(circle at center, #000, transparent 76%);
+    opacity: 0.18;
+    pointer-events: none;
+    position: absolute;
+  }
+
+  .core-system__diagram {
+    height: 100%;
+    overflow: visible;
+    width: 100%;
+  }
+
+  .core-system__grid path,
+  .core-system__grid circle {
+    fill: none;
+    opacity: 0.13;
+    stroke: var(--line-strong, rgb(91 216 255 / 34%));
+    stroke-dasharray: 2 11;
+    stroke-width: 1;
+  }
+
+  .core-system__orbits ellipse {
+    fill: none;
+    opacity: 0.36;
+    stroke: var(--accent, #50d8ff);
+    stroke-dasharray: 4 10;
+    stroke-width: 1;
+    animation: orbit-current 18s linear infinite;
+  }
+
+  .core-system__orbits ellipse + ellipse {
+    opacity: 0.22;
+    stroke: var(--teal, #31dac7);
+    animation-direction: reverse;
+    animation-duration: 24s;
+  }
+
+  .connection,
+  .signal {
+    fill: none;
+    stroke-linecap: round;
+  }
+
+  .connection {
+    opacity: 0.35;
+    stroke: var(--accent, #50d8ff);
+    stroke-width: 1.5;
+  }
+
+  .signal {
+    opacity: 0.95;
+    stroke: var(--teal, #31dac7);
+    stroke-dasharray: 2 18;
+    stroke-width: 3;
+    animation: data-current 2.8s linear infinite;
+  }
+
+  .signal--business {
+    animation-delay: -0.9s;
+  }
+
+  .signal--delivery {
+    animation-delay: -1.8s;
+  }
+
+  .core-system__core-halo,
+  .system-node__halo {
+    fill: var(--glow, rgb(24 190 244 / 23%));
+    opacity: 0.6;
+    stroke: var(--accent, #50d8ff);
+    stroke-opacity: 0.15;
+    animation: system-breathe 4.2s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .core-system__core-shell,
+  .system-node__shell {
+    fill: color-mix(in srgb, var(--surface-solid, #09182a), transparent 5%);
+    stroke: var(--accent, #50d8ff);
+    stroke-opacity: 0.72;
+    stroke-width: 1.5;
+  }
+
+  .core-system__core-cube,
+  .system-node__icon {
+    fill: none;
+    stroke: var(--teal, #31dac7);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+  }
+
+  .core-system__core-label,
+  .system-node__label {
+    fill: var(--text, #f4f8fc);
+    font-family: var(--font-sans, Inter, sans-serif);
+    font-size: 17px;
+    font-weight: 680;
+    letter-spacing: -0.02em;
+    text-transform: none;
+  }
+
+  .core-system__core-label {
+    fill: var(--accent, #50d8ff);
+    font-family: var(--font-mono, monospace);
+    font-size: 14px;
+    font-weight: 720;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .system-node__description {
+    fill: var(--text-soft, #bdcada);
+    font-family: var(--font-sans, Inter, sans-serif);
+    font-size: 11px;
+  }
+
+  .system-node--business .system-node__halo {
+    animation-delay: -1.4s;
+  }
+
+  .system-node--delivery .system-node__halo {
+    animation-delay: -2.8s;
+  }
+
+  .core-system__telemetry circle {
+    fill: var(--accent, #50d8ff);
+    filter: drop-shadow(0 0 6px var(--accent, #50d8ff));
+    opacity: 0.75;
+    animation: telemetry-blink 3.5s ease-in-out infinite;
+  }
+
+  .core-system__telemetry circle:nth-child(2) {
+    animation-delay: -0.8s;
+  }
+
+  .core-system__telemetry circle:nth-child(3) {
+    animation-delay: -1.7s;
+  }
+
+  .core-system__telemetry circle:nth-child(4) {
+    animation-delay: -2.4s;
+  }
+
+  @keyframes data-current {
+    to {
+      stroke-dashoffset: -40;
+    }
+  }
+
+  @keyframes orbit-current {
+    to {
+      stroke-dashoffset: -140;
+    }
+  }
+
+  @keyframes system-breathe {
+    0%,
+    100% {
+      opacity: 0.42;
+      transform: scale(0.96);
+    }
+
+    50% {
+      opacity: 0.72;
+      transform: scale(1.04);
+    }
+  }
+
+  @keyframes telemetry-blink {
+    0%,
+    30%,
+    100% {
+      opacity: 0.2;
+    }
+
+    45%,
+    65% {
+      opacity: 0.92;
+    }
+  }
+
+  @media (max-width: 39.99rem) {
+    .core-system {
+      aspect-ratio: 1.15;
+    }
+
+    .core-system__diagram {
+      transform: scale(1.13);
+      transform-origin: center;
+    }
+
+    .system-node__description {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .core-system__orbits ellipse,
+    .signal,
+    .core-system__core-halo,
+    .system-node__halo,
+    .core-system__telemetry circle {
+      animation: none;
+    }
+  }
+</style>

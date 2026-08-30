@@ -1,191 +1,160 @@
 ---
+import CoreSystemVisual from '../components/CoreSystemVisual.astro';
+import MissionVisual from '../components/MissionVisual.astro';
+import OpenSourceShield from '../components/OpenSourceShield.astro';
+import ProductDock from '../components/ProductDock.astro';
 import OrbitalScene from '../components/orbit/OrbitalScene.astro';
 import { featuredRepositories, pages } from '../data';
 import { defaultCatalogue } from '../i18n';
 import SiteLayout from '../layouts/SiteLayout.astro';
 
 const copy = defaultCatalogue.pages.home;
-const { repositoryStages, repositories } = defaultCatalogue;
-const firstSection = copy.sections[0];
-const extensionSection = copy.sections[1];
-const openSection = copy.sections[2];
-const productCards = [
-  { id: 'platform', index: '01', href: '/platform/', status: 'v2 alpha' },
-  { id: 'studio', index: '02', href: '/studio/', status: 'In development' },
-  { id: 'extensions', index: '03', href: '/extensions/', status: 'SDK published' },
-  { id: 'clients', index: '04', href: '/clients/', status: 'Proposal / planned' },
-  { id: 'packages', index: '05', href: '/packages/', status: 'Ecosystem direction' },
-  { id: 'roadmap', index: '06', href: '/roadmap/', status: 'Evidence led' },
-] as const;
+const { homeExperience, repositoryStages, repositories } = defaultCatalogue;
+const [firstSection, extensionSection, openSection] = copy.sections;
+const productIcons = ['core', 'studio', 'extension', 'clients'] as const;
+const productItems = homeExperience.products.map((product, index) => ({
+  ...product,
+  icon: productIcons[index] ?? 'core',
+}));
 ---
 
 <SiteLayout title={copy.metaTitle} description={copy.metaDescription}>
-  <section class="hero-home" aria-labelledby="home-title">
-    <div class="orbital-frame">
-      <OrbitalScene />
-    </div>
-    <div class="container">
-      <div class="hero-content">
-        <span class="eyebrow">{copy.hero.eyebrow}</span>
-        <h1 class="hero-title" id="home-title">
-          One platform.<br />{' '}<span class="gradient-text">Every connection.</span>
-        </h1>
-        <p class="hero-summary">{copy.hero.summary}</p>
-        <div class="hero-actions">
-          <a class="button button-primary" href={pages.home.primaryActionHref}>
-            {copy.hero.primaryAction.label}<span aria-hidden="true">→</span>
-          </a>
-          <a
-            class="button button-secondary"
-            href={pages.home.secondaryActionHref}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={copy.hero.secondaryAction.accessibleLabel}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"
-              ><path
-                fill="currentColor"
-                d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.86c-2.78.6-3.37-1.18-3.37-1.18-.45-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.33 1.08 2.9.83.09-.64.35-1.08.63-1.33-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02A9.6 9.6 0 0 1 12 6.84a9.6 9.6 0 0 1 2.5.34c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.75c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"
-              ></path></svg
+  <section class="home-hero" aria-labelledby="home-title" data-home-hero>
+    <div class="home-hero__scanline" aria-hidden="true"></div>
+    <div class="container home-hero__inner">
+      <div class="home-hero__stage">
+        <div class="home-hero__copy">
+          <span class="home-eyebrow">{copy.hero.eyebrow}</span>
+          <h1 class="home-title" id="home-title">
+            {
+              copy.hero.titleLines?.map((line) => (
+                <span class="home-title__line" data-home-title-line>
+                  {line}
+                </span>
+              ))
+            }
+          </h1>
+          <p class="home-summary">{copy.hero.summary}</p>
+          <div class="hero-actions home-actions">
+            <a class="button button-primary" href={pages.home.primaryActionHref}>
+              {copy.hero.primaryAction.label}
+              <span class="button-arrow" aria-hidden="true">→</span>
+            </a>
+            <a
+              class="button button-secondary button-github"
+              href={pages.home.secondaryActionHref}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={copy.hero.secondaryAction.accessibleLabel}
             >
-            {copy.hero.secondaryAction.label}
-          </a>
+              {copy.hero.secondaryAction.label}
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.86c-2.78.6-3.37-1.18-3.37-1.18-.45-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.33 1.08 2.9.83.09-.64.35-1.08.63-1.33-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02A9.6 9.6 0 0 1 12 6.84a9.6 9.6 0 0 1 2.5.34c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.75c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"
+                ></path>
+              </svg>
+            </a>
+          </div>
+          <OpenSourceShield class="home-trust" label={homeExperience.trustLine} />
         </div>
-        <div class="hero-telemetry" aria-label="Project telemetry">
-          <div class="telemetry-item">
-            <div class="telemetry-value">GATE A · PASSED</div>
-            <div class="telemetry-label">App v2 alpha</div>
-          </div>
-          <div class="telemetry-item">
-            <div class="telemetry-value">EN-GB</div>
-            <div class="telemetry-label">Source locale</div>
-          </div>
-          <div class="telemetry-item">
-            <div class="telemetry-value">APACHE-2.0</div>
-            <div class="telemetry-label">Website &amp; App</div>
+
+        <div class="home-hero__orbit" data-home-orbital-viewport>
+          <OrbitalScene quality="high" />
+          <div class="namibia-readout" aria-hidden="true">
+            <span class="namibia-readout__signal"></span>
+            <span>22.56° S · 17.08° E</span>
+            <strong>NAMIBIA · ORIGIN</strong>
           </div>
         </div>
       </div>
+
+      <ProductDock
+        class="home-product-dock"
+        heading={homeExperience.ecosystemTitle}
+        items={productItems}
+      />
     </div>
   </section>
 
-  <div class="container status-band" aria-label="Current project status">
-    <div class="status-band-inner">
-      <div class="status-band-item">
-        <strong>App v2 alpha</strong>
-        <span>Gate A passed · Gate B preparation underway</span>
-      </div>
-      <div class="status-band-item">
-        <strong>Extension SDK published</strong>
-        <span>App adoption continues in the open</span>
-      </div>
-      <div class="status-band-item">
-        <strong>Native clients planned</strong>
-        <span>Dart proposal first · Flutter follows</span>
-      </div>
-    </div>
-  </div>
-
-  <section class="section" aria-labelledby="ecosystem-title">
-    <div class="container">
-      <div class="section-heading">
-        <div>
-          <span class="section-kicker">THE KUMWE ECOSYSTEM</span>
-          <h2 id="ecosystem-title">A platform built to orbit one core.</h2>
-        </div>
-        <p>
-          Each project has a clear boundary and an explicit maturity label. Explore what works now,
-          what is being integrated and what comes next.
-        </p>
-      </div>
-      <div class="card-grid">
-        {
-          productCards.map((card) => {
-            const pageCopy = defaultCatalogue.pages[card.id];
-            return (
-              <article class="glass-card">
-                <div class="card-index">
-                  <>
-                    <span>{card.index} · KUMWE</span>
-                    <span class="card-status">{card.status}</span>
-                  </>
+  <section class="home-mission-section home-core-section" aria-labelledby="home-core-title">
+    <div class="container home-mission-grid">
+      <div class="home-section-copy">
+        <span class="section-kicker">{firstSection.eyebrow}</span>
+        <h2 id="home-core-title">{firstSection.title}</h2>
+        <p class="section-lead">{firstSection.body}</p>
+        <div class="home-principles" data-visual-story>
+          {
+            firstSection.items?.map((item, index) => (
+              <article>
+                <span class="mission-index">0{index + 1}</span>
+                <div>
+                  <span class="section-kicker">{item.eyebrow}</span>
+                  <h3>{item.title}</h3>
+                  <p>{item.description}</p>
                 </div>
-                <h3>{pageCopy.hero.title}</h3>
-                <p>{pageCopy.hero.summary}</p>
-                <a class="card-link" href={card.href}>
-                  Explore {defaultCatalogue.navigation[card.id]} <span aria-hidden="true">→</span>
-                </a>
               </article>
-            );
-          })
-        }
-      </div>
-    </div>
-  </section>
-
-  <section class="section section-compact" aria-labelledby="rules-title">
-    <div class="container">
-      <div class="section-heading">
-        <div>
-          <span class="section-kicker">{firstSection.eyebrow}</span>
-          <h2 id="rules-title">{firstSection.title}</h2>
+            ))
+          }
         </div>
-        <p>{firstSection.body}</p>
       </div>
-      <div class="card-grid">
-        {
-          firstSection.items?.map((item, index) => (
-            <article class="glass-card">
-              <div class="card-index">
-                <>
-                  <span>0{index + 1}</span>
-                  <span>{item.eyebrow}</span>
-                </>
-              </div>
-              <h3>{item.title}</h3>
-              <p>{item.description}</p>
-            </article>
-          ))
-        }
-      </div>
+      <CoreSystemVisual class="home-core-visual" />
     </div>
   </section>
 
-  <section class="section" aria-labelledby="contract-title">
-    <div class="container manifesto">
-      <div class="manifesto-visual" aria-hidden="true"></div>
-      <div class="manifesto-copy">
+  <section
+    class="home-mission-section home-extension-section"
+    aria-labelledby="home-contract-title"
+  >
+    <div class="container home-mission-grid home-mission-grid--reverse">
+      <div class="home-visual-bay" data-visual-story>
+        <MissionVisual pageId="extensions" />
+        <div class="visual-bay__legend" aria-hidden="true">
+          <span>01 · INSPECT</span><span>02 · VERIFY</span><span>03 · ACTIVATE</span>
+        </div>
+      </div>
+      <div class="home-section-copy">
         <span class="section-kicker">{extensionSection.eyebrow}</span>
-        <h2 id="contract-title">{extensionSection.title}</h2>
-        <p>{extensionSection.body}</p>
-        {extensionSection.note && <p class="content-section-note">{extensionSection.note}</p>}
+        <h2 id="home-contract-title">{extensionSection.title}</h2>
+        <p class="section-lead">{extensionSection.body}</p>
+        {extensionSection.note && <p class="mission-note">{extensionSection.note}</p>}
         <div class="section-actions">
-          <a class="button button-secondary" href="/extensions/"
-            >Explore extensions <span aria-hidden="true">→</span></a
-          >
+          <a class="button button-primary" href="/extensions/">
+            Explore extensions <span aria-hidden="true">→</span>
+          </a>
           <a class="button button-secondary" href="/packages/">Browse packages</a>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="section section-compact" aria-labelledby="open-title">
+  <section class="home-mission-section home-open-section" aria-labelledby="home-open-title">
     <div class="container">
-      <div class="section-heading">
+      <div class="mission-section-heading">
         <div>
           <span class="section-kicker">{openSection.eyebrow}</span>
-          <h2 id="open-title">{openSection.title}</h2>
+          <h2 id="home-open-title">{openSection.title}</h2>
         </div>
         <p>{openSection.body}</p>
       </div>
-      <div class="repository-grid">
+      <div class="repository-constellation" data-visual-story>
+        <span class="repository-constellation__orbit" aria-hidden="true"></span>
         {
-          featuredRepositories.slice(0, 6).map((repository) => (
-            <a class="repository-tile" href={repository.url} target="_blank" rel="noreferrer">
+          featuredRepositories.slice(0, 6).map((repository, index) => (
+            <a
+              class="repository-pod"
+              href={repository.url}
+              target="_blank"
+              rel="noreferrer"
+              style={`--pod-index:${index}`}
+            >
+              <span class="repository-pod__signal" aria-hidden="true" />
+              <span class="repository-pod__code">NODE · 0{index + 1}</span>
               <strong>{repository.name}</strong>
               <span>
                 {repositoryStages[repository.stage]} · {repositories[repository.id].title}
               </span>
+              <i aria-hidden="true">↗</i>
             </a>
           ))
         }
@@ -195,20 +164,28 @@ const productCards = [
 
   {
     copy.closing && (
-      <section class="container closing-panel" aria-labelledby="home-closing">
-        <h2 id="home-closing">{copy.closing.title}</h2>
-        <p>{copy.closing.body}</p>
-        <div class="section-actions">
-          <a
-            class="button button-primary"
-            href={pages.home.secondaryActionHref}
-            target="_blank"
-            rel="noreferrer"
-          >
-            {copy.closing.action.label}
-            <span aria-hidden="true">↗</span>
-          </a>
+      <section class="container mission-closing" aria-labelledby="home-closing">
+        <div class="mission-closing__signal" aria-hidden="true">
+          <>
+            <span />
+            <span />
+            <span />
+          </>
         </div>
+        <div>
+          <span class="section-kicker">MISSION READY</span>
+          <h2 id="home-closing">{copy.closing.title}</h2>
+          <p>{copy.closing.body}</p>
+        </div>
+        <a
+          class="button button-primary"
+          href={pages.home.secondaryActionHref}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {copy.closing.action.label}
+          <span aria-hidden="true">↗</span>
+        </a>
       </section>
     )
   }

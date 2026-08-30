@@ -1,0 +1,268 @@
+---
+interface Props {
+  class?: string;
+  density?: 'quiet' | 'normal' | 'rich';
+  variant?: 'deep' | 'dawn';
+}
+
+const { class: className, density = 'normal', variant = 'deep' } = Astro.props;
+
+const STAR_SEEDS = [
+  [4, 12, 1.1, 7.2, -1.8],
+  [9, 38, 0.7, 5.8, -4.1],
+  [13, 72, 1.3, 8.4, -2.9],
+  [17, 21, 0.8, 6.1, -0.7],
+  [21, 55, 1.6, 9.2, -5.4],
+  [25, 84, 0.8, 7.7, -3.5],
+  [29, 8, 1.2, 6.8, -4.8],
+  [33, 31, 0.7, 8.8, -1.2],
+  [37, 67, 1.4, 5.9, -3.8],
+  [41, 16, 0.8, 7.4, -5.7],
+  [45, 47, 1.1, 9.6, -2.2],
+  [49, 91, 0.7, 6.6, -4.3],
+  [53, 27, 1.5, 8.1, -6.1],
+  [57, 73, 0.9, 7.1, -2.6],
+  [61, 10, 0.7, 5.7, -3.4],
+  [65, 42, 1.2, 9.4, -0.9],
+  [69, 82, 0.8, 6.4, -5.2],
+  [73, 19, 1.5, 8.7, -3.1],
+  [77, 59, 0.7, 7.9, -6.4],
+  [81, 88, 1.1, 5.6, -1.6],
+  [85, 34, 0.8, 9.1, -4.6],
+  [89, 69, 1.4, 6.9, -2.4],
+  [93, 15, 0.7, 8.3, -5.9],
+  [96, 51, 1.2, 7.5, -1.1],
+  [7, 91, 0.6, 9.5, -6.8],
+  [15, 48, 0.6, 8.9, -7.2],
+  [23, 4, 0.7, 10.2, -5.1],
+  [31, 94, 0.6, 9.8, -3.9],
+  [39, 40, 0.7, 10.6, -7.7],
+  [47, 6, 0.6, 9.3, -4.7],
+  [55, 96, 0.7, 10.4, -6.3],
+  [63, 53, 0.6, 9.7, -2.8],
+  [71, 3, 0.7, 10.1, -5.6],
+  [79, 76, 0.6, 8.6, -7.1],
+  [87, 5, 0.7, 9.9, -3.3],
+  [95, 93, 0.6, 10.5, -6.6],
+] as const;
+
+const starCount = density === 'quiet' ? 18 : density === 'rich' ? STAR_SEEDS.length : 26;
+const stars = STAR_SEEDS.slice(0, starCount);
+---
+
+<div
+  class:list={['space-backdrop', className]}
+  data-density={density}
+  data-variant={variant}
+  aria-hidden="true"
+  role="presentation"
+>
+  <span class="space-backdrop__depth"></span>
+  <span class="space-backdrop__nebula space-backdrop__nebula--cyan"></span>
+  <span class="space-backdrop__nebula space-backdrop__nebula--violet"></span>
+  <span class="space-backdrop__orbit space-backdrop__orbit--near"></span>
+  <span class="space-backdrop__orbit space-backdrop__orbit--far"></span>
+  <span class="space-backdrop__horizon"></span>
+  <span class="space-backdrop__stars">
+    {
+      stars.map(([x, y, size, duration, delay], index) => (
+        <i
+          class:list={['space-backdrop__star', index % 7 === 0 && 'is-bright']}
+          style={`--star-x:${x}%;--star-y:${y}%;--star-size:${size}px;--star-duration:${duration}s;--star-delay:${delay}s`}
+        />
+      ))
+    }
+  </span>
+  <span class="space-backdrop__grain"></span>
+</div>
+
+<style>
+  .space-backdrop {
+    --backdrop-base: #010610;
+    --backdrop-depth: #061326;
+    --backdrop-cyan: rgb(38 202 246 / 20%);
+    --backdrop-violet: rgb(112 82 220 / 10%);
+    --backdrop-star: #c9f5ff;
+    --backdrop-orbit: rgb(80 216 255 / 22%);
+    --backdrop-horizon: rgb(66 220 255 / 14%);
+    contain: layout paint style;
+    inset: 0;
+    isolation: isolate;
+    overflow: hidden;
+    pointer-events: none;
+    position: absolute;
+    user-select: none;
+  }
+
+  .space-backdrop__depth,
+  .space-backdrop__nebula,
+  .space-backdrop__stars,
+  .space-backdrop__grain {
+    inset: 0;
+    position: absolute;
+  }
+
+  .space-backdrop__depth {
+    background:
+      radial-gradient(circle at 76% 30%, var(--backdrop-cyan), transparent 34rem),
+      linear-gradient(145deg, var(--backdrop-base), var(--backdrop-depth) 72%, var(--backdrop-base));
+    z-index: -5;
+  }
+
+  .space-backdrop[data-variant='dawn'] .space-backdrop__depth {
+    background:
+      radial-gradient(circle at 72% 68%, var(--backdrop-horizon), transparent 36rem),
+      radial-gradient(circle at 18% 12%, var(--backdrop-violet), transparent 28rem),
+      linear-gradient(155deg, var(--backdrop-base), var(--backdrop-depth) 64%, var(--backdrop-base));
+  }
+
+  .space-backdrop__nebula {
+    border-radius: 50%;
+    filter: blur(4rem);
+    opacity: 0.7;
+    transform: translate3d(0, 0, 0);
+  }
+
+  .space-backdrop__nebula--cyan {
+    background: var(--backdrop-cyan);
+    height: 34rem;
+    left: 58%;
+    top: 8%;
+    width: 42rem;
+  }
+
+  .space-backdrop__nebula--violet {
+    background: var(--backdrop-violet);
+    height: 28rem;
+    left: -8rem;
+    top: 42%;
+    width: 31rem;
+  }
+
+  .space-backdrop__star {
+    animation: space-star-twinkle var(--star-duration) ease-in-out var(--star-delay) infinite;
+    background: var(--backdrop-star);
+    border-radius: 50%;
+    box-shadow: 0 0 calc(var(--star-size) * 4)
+      color-mix(in srgb, var(--backdrop-star), transparent 20%);
+    height: var(--star-size);
+    left: var(--star-x);
+    opacity: 0.3;
+    position: absolute;
+    top: var(--star-y);
+    width: var(--star-size);
+  }
+
+  .space-backdrop__star.is-bright {
+    box-shadow:
+      0 0 0.35rem var(--backdrop-star),
+      0 0 1rem color-mix(in srgb, var(--backdrop-star), transparent 38%);
+  }
+
+  .space-backdrop__orbit {
+    animation: space-orbit-drift 26s ease-in-out infinite alternate;
+    border: 1px solid var(--backdrop-orbit);
+    border-radius: 50%;
+    height: 34%;
+    mask-image: linear-gradient(90deg, transparent 2%, #000 28% 74%, transparent 98%);
+    position: absolute;
+    transform: rotate(-10deg);
+    width: 84%;
+    -webkit-mask-image: linear-gradient(90deg, transparent 2%, #000 28% 74%, transparent 98%);
+  }
+
+  .space-backdrop__orbit--near {
+    bottom: 6%;
+    left: 18%;
+  }
+
+  .space-backdrop__orbit--far {
+    animation-delay: -11s;
+    height: 25%;
+    left: 45%;
+    opacity: 0.52;
+    top: 8%;
+    transform: rotate(14deg);
+    width: 58%;
+  }
+
+  .space-backdrop__horizon {
+    background: radial-gradient(ellipse at 50% 100%, var(--backdrop-horizon), transparent 64%);
+    bottom: -28%;
+    filter: blur(1rem);
+    height: 45%;
+    left: -10%;
+    opacity: 0.7;
+    position: absolute;
+    width: 120%;
+  }
+
+  .space-backdrop__grain {
+    background-image: repeating-radial-gradient(
+      circle at 17% 32%,
+      rgb(255 255 255 / 3%) 0 0.03rem,
+      transparent 0.04rem 0.24rem
+    );
+    mix-blend-mode: soft-light;
+    opacity: 0.12;
+  }
+
+  .space-backdrop[data-density='quiet'] .space-backdrop__stars {
+    opacity: 0.58;
+  }
+
+  .space-backdrop[data-density='rich'] .space-backdrop__stars {
+    opacity: 1;
+  }
+
+  :global(html[data-theme='light']) .space-backdrop {
+    --backdrop-base: #eef7fb;
+    --backdrop-depth: #d8ebf4;
+    --backdrop-cyan: rgb(2 134 180 / 14%);
+    --backdrop-violet: rgb(91 73 180 / 8%);
+    --backdrop-star: #1f6682;
+    --backdrop-orbit: rgb(0 108 148 / 18%);
+    --backdrop-horizon: rgb(0 146 188 / 12%);
+  }
+
+  :global(html[data-theme='light']) .space-backdrop__star {
+    opacity: 0.2;
+  }
+
+  @keyframes space-star-twinkle {
+    0%,
+    100% {
+      opacity: 0.18;
+      transform: scale(0.75);
+    }
+    46% {
+      opacity: 0.92;
+      transform: scale(1.22);
+    }
+    62% {
+      opacity: 0.48;
+      transform: scale(0.9);
+    }
+  }
+
+  @keyframes space-orbit-drift {
+    from {
+      translate: -0.7% 0;
+    }
+    to {
+      translate: 0.7% -1.4%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .space-backdrop__star,
+    .space-backdrop__orbit {
+      animation: none;
+    }
+
+    .space-backdrop__star {
+      opacity: 0.55;
+      transform: none;
+    }
+  }
+</style>

@@ -27,7 +27,7 @@ export const pages = {
     id: 'home',
     path: '/',
     primaryActionHref: '/platform/',
-    secondaryActionHref: 'https://github.com/kumwe/app',
+    secondaryActionHref: 'https://github.com/kumwe',
   },
   platform: {
     id: 'platform',
