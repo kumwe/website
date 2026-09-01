@@ -1,6 +1,5 @@
 ---
-import CoreSystemVisual from '../components/CoreSystemVisual.astro';
-import MissionVisual from '../components/MissionVisual.astro';
+import CinematicScene from '../components/CinematicScene.astro';
 import OpenSourceShield from '../components/OpenSourceShield.astro';
 import ProductDock from '../components/ProductDock.astro';
 import OrbitalScene from '../components/orbit/OrbitalScene.astro';
@@ -99,7 +98,12 @@ const productItems = homeExperience.products.map((product, index) => ({
           }
         </div>
       </div>
-      <CoreSystemVisual class="home-core-visual" />
+      <CinematicScene
+        class="home-core-visual"
+        src="/images/mascot/home/home-connected-design.webp"
+        alt="The Kumwe meerkat engineer connecting content, business operations and delivery services from one command core."
+        variant="section"
+      />
     </div>
   </section>
 
@@ -109,7 +113,11 @@ const productItems = homeExperience.products.map((product, index) => ({
   >
     <div class="container home-mission-grid home-mission-grid--reverse">
       <div class="home-visual-bay" data-visual-story>
-        <MissionVisual pageId="extensions" />
+        <CinematicScene
+          src="/images/mascot/home/home-extensible-workshop.webp"
+          alt="The Kumwe meerkat installing an advanced capability module while the protected platform core remains intact."
+          variant="section"
+        />
         <div class="visual-bay__legend" aria-hidden="true">
           <span>01 · INSPECT</span><span>02 · VERIFY</span><span>03 · ACTIVATE</span>
         </div>
@@ -138,6 +146,12 @@ const productItems = homeExperience.products.map((product, index) => ({
         </div>
         <p>{openSection.body}</p>
       </div>
+      <CinematicScene
+        class="home-evidence-visual"
+        src="/images/mascot/home/home-public-evidence.webp"
+        alt="The Kumwe meerkat inspecting public engineering evidence and work at different levels of maturity."
+        variant="wide"
+      />
       <div class="repository-constellation" data-visual-story>
         <span class="repository-constellation__orbit" aria-hidden="true"></span>
         {
@@ -166,14 +180,14 @@ const productItems = homeExperience.products.map((product, index) => ({
   {
     copy.closing && (
       <section class="container mission-closing" aria-labelledby="home-closing">
-        <div class="mission-closing__signal" aria-hidden="true">
-          <>
-            <span />
-            <span />
-            <span />
-          </>
-        </div>
-        <div>
+        <CinematicScene
+          class="mission-closing__art"
+          src="/images/mascot/home/home-working-platform-cta.webp"
+          alt="The Kumwe meerkat piloting an operational spacecraft toward its destination."
+          objectPosition="64% 50%"
+          variant="cta"
+        />
+        <div class="mission-closing__copy">
           <span class="section-kicker">MISSION READY</span>
           <h2 id="home-closing">{copy.closing.title}</h2>
           <p>{copy.closing.body}</p>
