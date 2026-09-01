@@ -1,4 +1,5 @@
 ---
+import CinematicScene from '../components/CinematicScene.astro';
 import SiteLayout from '../layouts/SiteLayout.astro';
 ---
 
@@ -8,18 +9,28 @@ import SiteLayout from '../layouts/SiteLayout.astro';
   noIndex
 >
   <section class="not-found">
+    <CinematicScene
+      class="not-found__art"
+      src="/images/mascot/system/404-out-of-orbit.webp"
+      alt="The Kumwe meerkat floating safely outside a spacecraft hatch with a disconnected navigation cable."
+      objectPosition="34% 50%"
+      variant="404"
+      priority
+    />
     <div class="container">
-      <strong aria-hidden="true">404</strong>
-      <h1>That route is out of orbit.</h1>
-      <p>The page may have moved, or the connection you followed may no longer exist.</p>
-      <div class="hero-actions" style="justify-content: center;">
-        <a class="button button-primary" href="/">Return to Kumwe</a>
-        <a
-          class="button button-secondary"
-          href="https://github.com/kumwe"
-          target="_blank"
-          rel="noreferrer">Explore GitHub</a
-        >
+      <div class="not-found__copy">
+        <strong aria-hidden="true">404</strong>
+        <h1>That route is out of orbit.</h1>
+        <p>The page may have moved, or the connection you followed may no longer exist.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="/">Return to Kumwe</a>
+          <a
+            class="button button-secondary"
+            href="https://github.com/kumwe"
+            target="_blank"
+            rel="noreferrer">Explore GitHub</a
+          >
+        </div>
       </div>
     </div>
   </section>

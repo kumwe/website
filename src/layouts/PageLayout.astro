@@ -1,6 +1,7 @@
 ---
+import CinematicScene from '../components/CinematicScene.astro';
 import MissionVisual from '../components/MissionVisual.astro';
-import { MISSION_VISUALS, pages, type PageId } from '../data';
+import { MISSION_SCENES, MISSION_VISUALS, pages, type PageId } from '../data';
 import { defaultCatalogue } from '../i18n';
 import type { SectionCopy } from '../i18n/types';
 import SiteLayout from './SiteLayout.astro';
@@ -13,6 +14,7 @@ const { pageId } = Astro.props;
 const copy = defaultCatalogue.pages[pageId];
 const page = pages[pageId];
 const visual = MISSION_VISUALS[pageId];
+const scenes = MISSION_SCENES[pageId];
 const sections = copy.sections as readonly SectionCopy[];
 const isExternal = (href: string) => href.startsWith('http');
 const destinationArrow = (href: string) => (isExternal(href) ? '↗' : '→');
@@ -69,7 +71,20 @@ const destinationArrow = (href: string) => (isExternal(href) ? '↗' : '→');
 
         <div class="mission-hero__visual" data-page-hero-visual>
           <div class="mission-hero__frame-corners" aria-hidden="true"></div>
-          <MissionVisual pageId={pageId} />
+          {
+            scenes.hero ? (
+              <CinematicScene
+                src={scenes.hero.src}
+                lightSrc={scenes.hero.lightSrc}
+                alt={scenes.hero.alt}
+                objectPosition={scenes.hero.objectPosition}
+                variant="hero"
+                priority
+              />
+            ) : (
+              <MissionVisual pageId={pageId} />
+            )
+          }
           <div class="mission-telemetry" aria-hidden="true">
             {
               visual.telemetry.map((label, index) => (
@@ -89,51 +104,58 @@ const destinationArrow = (href: string) => (isExternal(href) ? '↗' : '→');
 
     <div class="container mission-storyline">
       {
-        sections.map((section, index) => (
-          <section
-            class:list={['mission-story', index % 2 === 1 && 'mission-story--reverse']}
-            aria-labelledby={`${pageId}-section-${index}`}
-            data-visual-story
-          >
-            <div class="mission-story__instrument" aria-hidden="true">
-              <span class="mission-story__number">0{index + 1}</span>
-              <div class="mission-story__radar">
-                <>
-                  <span />
-                  <span />
-                  <span />
-                  <i />
-                </>
-              </div>
-              <div class="mission-story__readout">
-                <span>{visual.telemetry[index % visual.telemetry.length]}</span>
-                <strong>{index === 0 ? 'ONLINE' : index === 1 ? 'LINKED' : 'VERIFIED'}</strong>
-              </div>
-            </div>
+        sections.map((section, index) => {
+          const scene = scenes.sections[index];
 
-            <div class="mission-story__copy">
-              {section.eyebrow && <span class="section-kicker">{section.eyebrow}</span>}
-              <h2 id={`${pageId}-section-${index}`}>{section.title}</h2>
-              <p class="section-lead">{section.body}</p>
-              {section.note && <p class="mission-note">{section.note}</p>}
-              {section.items && (
-                <div class="mission-feature-grid">
-                  {section.items.map((item, itemIndex) => (
-                    <article class="mission-feature">
-                      <span class="mission-feature__index">
-                        {index + 1}.{itemIndex + 1}
-                      </span>
-                      {item.eyebrow && <span class="section-kicker">{item.eyebrow}</span>}
-                      <h3>{item.title}</h3>
-                      <p>{item.description}</p>
-                      <span class="mission-feature__signal" aria-hidden="true" />
-                    </article>
-                  ))}
+          return (
+            <section
+              class:list={['mission-story', index % 2 === 1 && 'mission-story--reverse']}
+              aria-labelledby={`${pageId}-section-${index}`}
+              data-visual-story
+            >
+              <div class="mission-story__instrument">
+                {scene && (
+                  <CinematicScene
+                    src={scene.src}
+                    lightSrc={scene.lightSrc}
+                    alt={scene.alt}
+                    objectPosition={scene.objectPosition}
+                    variant="section"
+                  />
+                )}
+                <span class="mission-story__number" aria-hidden="true">
+                  0{index + 1}
+                </span>
+                <div class="mission-story__readout" aria-hidden="true">
+                  <span>{visual.telemetry[index % visual.telemetry.length]}</span>
+                  <strong>{index === 0 ? 'ONLINE' : index === 1 ? 'LINKED' : 'VERIFIED'}</strong>
                 </div>
-              )}
-            </div>
-          </section>
-        ))
+              </div>
+
+              <div class="mission-story__copy">
+                {section.eyebrow && <span class="section-kicker">{section.eyebrow}</span>}
+                <h2 id={`${pageId}-section-${index}`}>{section.title}</h2>
+                <p class="section-lead">{section.body}</p>
+                {section.note && <p class="mission-note">{section.note}</p>}
+                {section.items && (
+                  <div class="mission-feature-grid">
+                    {section.items.map((item, itemIndex) => (
+                      <article class="mission-feature">
+                        <span class="mission-feature__index">
+                          {index + 1}.{itemIndex + 1}
+                        </span>
+                        {item.eyebrow && <span class="section-kicker">{item.eyebrow}</span>}
+                        <h3>{item.title}</h3>
+                        <p>{item.description}</p>
+                        <span class="mission-feature__signal" aria-hidden="true" />
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </section>
+          );
+        })
       }
     </div>
 
@@ -142,14 +164,15 @@ const destinationArrow = (href: string) => (isExternal(href) ? '↗' : '→');
     {
       copy.closing && (
         <section class="container mission-closing" aria-labelledby={`${pageId}-closing`}>
-          <div class="mission-closing__signal" aria-hidden="true">
-            <>
-              <span />
-              <span />
-              <span />
-            </>
-          </div>
-          <div>
+          <CinematicScene
+            class="mission-closing__art"
+            src={scenes.closing.src}
+            lightSrc={scenes.closing.lightSrc}
+            alt={scenes.closing.alt}
+            objectPosition={scenes.closing.objectPosition}
+            variant="cta"
+          />
+          <div class="mission-closing__copy">
             <span class="section-kicker">NEXT TRANSMISSION</span>
             <h2 id={`${pageId}-closing`}>{copy.closing.title}</h2>
             <p>{copy.closing.body}</p>
