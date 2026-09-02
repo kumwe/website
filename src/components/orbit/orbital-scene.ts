@@ -83,6 +83,7 @@ const TRAIL_SEGMENTS = 18;
 const TRAIL_RADIANS = Math.PI * 0.24;
 const EARTH_ROTATION_SPEED = 0.0014;
 const CLOUD_ROTATION_SPEED = 0.000085;
+const SCOUT_PILOT_TEXTURE = '/images/mascot/system/kumwe-cockpit-pilot.webp';
 const AXIAL_VIEW_TILT = THREE.MathUtils.degToRad(-58);
 const ATTITUDE_FORWARD = new THREE.Vector3();
 const ATTITUDE_OUTWARD = new THREE.Vector3();
@@ -350,6 +351,11 @@ export function mountOrbitalScene(
   const textures: Partial<Record<EarthTextureRole, THREE.Texture>> = {};
   const textureLoader = new THREE.TextureLoader();
   textureLoader.setCrossOrigin('anonymous');
+  const scout = orbiters.find((orbiter) => orbiter.id === 'kumwe-scout');
+  const scoutPilot = scout?.model.userData.pilot as THREE.Sprite | undefined;
+  const scoutPilotMaterial = scout?.model.userData.pilotMaterial as
+    THREE.SpriteMaterial | undefined;
+  let scoutPilotTexture: THREE.Texture | undefined;
 
   let resolvedTheme = resolveTheme();
   let elapsed = 0;
@@ -446,6 +452,33 @@ export function mountOrbitalScene(
     );
   };
 
+  const requestScoutPilotTexture = (): void => {
+    if (!scoutPilot || !scoutPilotMaterial) return;
+
+    textureLoader.load(
+      SCOUT_PILOT_TEXTURE,
+      (texture) => {
+        if (destroyed) {
+          texture.dispose();
+          return;
+        }
+
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+        scoutPilotTexture?.dispose();
+        scoutPilotTexture = texture;
+        scoutPilotMaterial.map = texture;
+        scoutPilotMaterial.needsUpdate = true;
+        scoutPilot.visible = true;
+        renderOnce();
+      },
+      undefined,
+      () => {
+        scoutPilot.visible = false;
+      },
+    );
+  };
+
   const updateScene = (deltaSeconds: number): void => {
     elapsed += deltaSeconds;
     const animatedTime = reducedMotion ? 0 : elapsed;
@@ -475,6 +508,24 @@ export function mountOrbitalScene(
       const tangent = orbitalTangentAt(orbiter.elements, animatedTime);
       orbiter.model.position.set(position.x, position.y, position.z);
       orientAlongTangent(orbiter.model, tangent, position);
+
+      if (orbiter.kind === 'spacecraft') {
+        const gesture = Math.pow(Math.max(0, Math.sin(animatedTime * 0.34)), 6);
+        orbiter.model.rotateZ(Math.sin(animatedTime * 0.72) * 0.055);
+        if (scoutPilot) {
+          scoutPilot.position.x = Math.sin(animatedTime * 1.3) * gesture * 0.035;
+          scoutPilot.position.y = 0.48 + gesture * 0.045;
+        }
+        if (scoutPilotMaterial) {
+          scoutPilotMaterial.rotation = Math.sin(animatedTime * 1.15) * gesture * 0.025;
+        }
+
+        const engineGlowMaterials = orbiter.model.userData.engineGlowMaterials as
+          THREE.MeshBasicMaterial[] | undefined;
+        for (const material of engineGlowMaterials ?? []) {
+          material.opacity = 0.72 + (Math.sin(animatedTime * 5.4) + 1) * 0.12;
+        }
+      }
 
       if (orbiter.kind === 'station') {
         const articulation = orbiter.model.userData.articulation as THREE.Group | undefined;
@@ -639,6 +690,7 @@ export function mountOrbitalScene(
   requestTexture('day', options.lightTextureUrl);
   requestTexture('night', options.darkTextureUrl);
   requestTexture('clouds', options.cloudTextureUrl);
+  requestScoutPilotTexture();
   if (!simplified) {
     requestTexture('bump', options.topologyTextureUrl);
     requestTexture('water', options.waterTextureUrl);
@@ -669,6 +721,7 @@ export function mountOrbitalScene(
       }
 
       for (const texture of Object.values(textures)) texture?.dispose();
+      scoutPilotTexture?.dispose();
       disposeScene(scene);
       renderer.dispose();
       renderer.domElement.remove();
@@ -1165,74 +1218,135 @@ function createMascotScoutModel(
   materials: ReturnType<typeof createOrbiterMaterials>,
 ): THREE.Group {
   const group = new THREE.Group();
-  const hullMaterial = materials.panelFrame.clone();
-  hullMaterial.color.set(0x45e1df);
-  hullMaterial.emissive.set(0x063f4a);
-  hullMaterial.emissiveIntensity = 0.36;
+  const hullMaterial = materials.body.clone();
+  hullMaterial.color.set(0x304958);
+  hullMaterial.emissive.set(0x03131a);
+  hullMaterial.emissiveIntensity = 0.22;
+  hullMaterial.metalness = 0.78;
+  hullMaterial.roughness = 0.22;
+
+  const wingMaterial = materials.panel.clone();
+  wingMaterial.color.set(0x102c43);
+  wingMaterial.emissive.set(0x031522);
+  wingMaterial.emissiveIntensity = 0.32;
+  wingMaterial.metalness = 0.62;
+  wingMaterial.roughness = 0.26;
+
+  const trimMaterial = materials.panelFrame.clone();
+  trimMaterial.color.set(0x52e4e4);
+  trimMaterial.emissive.set(0x0a6973);
+  trimMaterial.emissiveIntensity = 0.72;
+  trimMaterial.metalness = 0.52;
+  trimMaterial.roughness = 0.18;
 
   const canopyMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0x8deaff,
-    emissive: 0x092c45,
-    emissiveIntensity: 0.45,
-    metalness: 0.08,
-    opacity: 0.52,
-    roughness: 0.08,
+    color: 0x62cfe0,
+    emissive: 0x061e35,
+    emissiveIntensity: 0.38,
+    metalness: 0.18,
+    opacity: 0.32,
+    roughness: 0.04,
     side: THREE.DoubleSide,
     transparent: true,
   });
-  const furMaterial = new THREE.MeshStandardMaterial({
-    color: 0xb78a5f,
-    emissive: 0x3a1d0e,
-    emissiveIntensity: 0.32,
-    roughness: 0.88,
-  });
-  const darkFurMaterial = new THREE.MeshStandardMaterial({
-    color: 0x34251f,
-    emissive: 0x120a07,
-    emissiveIntensity: 0.18,
-    roughness: 0.9,
-  });
-  const engineMaterial = new THREE.MeshBasicMaterial({
-    blending: THREE.AdditiveBlending,
-    color: 0x62f5ff,
+
+  const fuselage = new THREE.Mesh(new THREE.CylinderGeometry(0.56, 0.76, 3.35, 10), hullMaterial);
+  fuselage.rotation.x = Math.PI / 2;
+  fuselage.position.z = -0.3;
+  fuselage.scale.y = 0.76;
+
+  const nose = new THREE.Mesh(new THREE.ConeGeometry(0.57, 1.7, 10), hullMaterial);
+  nose.rotation.x = Math.PI / 2;
+  nose.position.z = 2.15;
+
+  const wingShape = new THREE.Shape();
+  wingShape.moveTo(-0.58, 0.8);
+  wingShape.lineTo(-3.15, -1.22);
+  wingShape.lineTo(-2.42, -1.82);
+  wingShape.lineTo(0, -1.05);
+  wingShape.lineTo(2.42, -1.82);
+  wingShape.lineTo(3.15, -1.22);
+  wingShape.lineTo(0.58, 0.8);
+  wingShape.closePath();
+  const wing = new THREE.Mesh(new THREE.ShapeGeometry(wingShape), wingMaterial);
+  wing.rotation.x = Math.PI / 2;
+  wing.position.set(0, -0.24, -0.42);
+
+  const spine = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 4.5), trimMaterial);
+  spine.position.set(0, 0.49, -0.05);
+  const leftWingTrim = new THREE.Mesh(new THREE.BoxGeometry(2.35, 0.055, 0.075), trimMaterial);
+  const rightWingTrim = leftWingTrim.clone();
+  leftWingTrim.position.set(-1.67, -0.17, -0.92);
+  rightWingTrim.position.set(1.67, -0.17, -0.92);
+  leftWingTrim.rotation.y = -0.31;
+  rightWingTrim.rotation.y = 0.31;
+
+  const tailGeometry = new THREE.ConeGeometry(0.46, 1.35, 3);
+  const leftTail = new THREE.Mesh(tailGeometry, hullMaterial);
+  const rightTail = leftTail.clone();
+  leftTail.rotation.z = -0.16;
+  rightTail.rotation.z = 0.16;
+  leftTail.position.set(-0.55, 0.56, -1.72);
+  rightTail.position.set(0.55, 0.56, -1.72);
+
+  const pilotMaterial = new THREE.SpriteMaterial({
+    alphaTest: 0.025,
+    color: 0xffffff,
+    depthTest: true,
     depthWrite: false,
     transparent: true,
   });
+  const pilot = new THREE.Sprite(pilotMaterial);
+  pilot.position.set(0, 0.48, 0.58);
+  pilot.scale.set(1.08, 1.08, 1);
+  pilot.renderOrder = 7;
+  pilot.visible = false;
 
-  const fuselage = new THREE.Mesh(new THREE.ConeGeometry(0.82, 3.8, 18), hullMaterial);
-  fuselage.rotation.x = Math.PI / 2;
-  const wing = new THREE.Mesh(new THREE.BoxGeometry(3.8, 0.12, 1.35), materials.panel);
-  wing.position.z = -0.55;
-  const tail = new THREE.Mesh(new THREE.BoxGeometry(0.14, 1.15, 1.2), hullMaterial);
-  tail.position.set(0, 0.55, -1.35);
-
-  const pilot = new THREE.Group();
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.36, 16, 12), furMaterial);
-  head.scale.set(0.92, 1.08, 0.88);
-  const leftEar = new THREE.Mesh(new THREE.SphereGeometry(0.15, 12, 8), darkFurMaterial);
-  const rightEar = leftEar.clone();
-  leftEar.position.set(-0.28, 0.26, -0.02);
-  rightEar.position.set(0.28, 0.26, -0.02);
-  const muzzle = new THREE.Mesh(new THREE.SphereGeometry(0.15, 12, 8), darkFurMaterial);
-  muzzle.scale.set(0.78, 0.62, 1.15);
-  muzzle.position.set(0, -0.06, 0.3);
-  pilot.add(leftEar, rightEar, head, muzzle);
-  pilot.position.set(0, 0.28, 0.22);
-
-  const canopy = new THREE.Mesh(new THREE.SphereGeometry(0.86, 20, 14), canopyMaterial);
-  canopy.scale.set(1, 0.72, 1.18);
-  canopy.position.set(0, 0.25, 0.2);
+  const canopy = new THREE.Mesh(new THREE.SphereGeometry(0.82, 24, 16), canopyMaterial);
+  canopy.scale.set(0.88, 0.58, 1.38);
+  canopy.position.set(0, 0.33, 0.62);
   canopy.renderOrder = 8;
 
-  const engine = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.46, 0.5, 14), materials.detail);
-  engine.rotation.x = Math.PI / 2;
-  engine.position.z = -1.88;
-  const engineGlow = new THREE.Mesh(new THREE.CircleGeometry(0.31, 18), engineMaterial);
-  engineGlow.rotation.y = Math.PI;
-  engineGlow.position.z = -2.15;
-  engineGlow.renderOrder = 9;
+  const engineGlowMaterials: THREE.MeshBasicMaterial[] = [];
+  const engineGeometry = new THREE.CylinderGeometry(0.24, 0.32, 1.45, 12);
+  const engineGlowGeometry = new THREE.CircleGeometry(0.22, 18);
+  const engines = new THREE.Group();
+  for (const x of [-1.22, 1.22]) {
+    const engine = new THREE.Mesh(engineGeometry, hullMaterial);
+    engine.rotation.x = Math.PI / 2;
+    engine.position.set(x, -0.13, -1.18);
 
-  group.add(fuselage, wing, tail, pilot, canopy, engine, engineGlow);
+    const engineGlowMaterial = new THREE.MeshBasicMaterial({
+      blending: THREE.AdditiveBlending,
+      color: 0x62f5ff,
+      depthWrite: false,
+      opacity: 0.82,
+      transparent: true,
+    });
+    const engineGlow = new THREE.Mesh(engineGlowGeometry, engineGlowMaterial);
+    engineGlow.rotation.y = Math.PI;
+    engineGlow.position.set(x, -0.13, -1.93);
+    engineGlow.renderOrder = 9;
+    engineGlowMaterials.push(engineGlowMaterial);
+    engines.add(engine, engineGlow);
+  }
+
+  group.add(
+    wing,
+    fuselage,
+    nose,
+    spine,
+    leftWingTrim,
+    rightWingTrim,
+    leftTail,
+    rightTail,
+    pilot,
+    canopy,
+    engines,
+  );
+  group.userData.pilot = pilot;
+  group.userData.pilotMaterial = pilotMaterial;
+  group.userData.engineGlowMaterials = engineGlowMaterials;
   group.scale.setScalar(scale);
   return group;
 }
