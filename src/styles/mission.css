@@ -3,6 +3,7 @@
 :root {
   --page-max: 92rem;
   --header-height: 5.7rem;
+  --header-control-height: 2.65rem;
 }
 
 html[data-theme='dark'] {
@@ -87,7 +88,8 @@ body {
 .github-button,
 .menu-button,
 .theme-control {
-  min-height: 2.65rem;
+  min-height: var(--header-control-height);
+  height: var(--header-control-height);
   border-color: var(--mission-hairline);
   background: color-mix(in srgb, var(--mission-glass-strong), transparent 12%);
 }
@@ -98,6 +100,8 @@ body {
 }
 
 .theme-control .icon-button {
+  height: 100%;
+  min-height: 0;
   min-width: 2.35rem;
 }
 
