@@ -81,7 +81,7 @@ const WINDHOEK = { latitude: -22.56, longitude: 17.08 };
 const KATWITWI = { latitude: -17.4, longitude: 18.41667 };
 const TRAIL_SEGMENTS = 18;
 const TRAIL_RADIANS = Math.PI * 0.24;
-const EARTH_ROTATION_SPEED = 0.001;
+const EARTH_ROTATION_SPEED = 0.0018;
 const CLOUD_ROTATION_SPEED = 0.000085;
 const AXIAL_VIEW_TILT = THREE.MathUtils.degToRad(-58);
 const ATTITUDE_FORWARD = new THREE.Vector3();
@@ -116,8 +116,8 @@ const ORBITERS: OrbiterDefinition[] = [
       radius: 67,
       inclinationDeg: 28,
       ascendingNodeDeg: -18,
-      phaseDeg: 90,
-      angularVelocity: 0.105,
+      phaseDeg: 60,
+      angularVelocity: 0.17,
     },
   },
   {
@@ -130,8 +130,8 @@ const ORBITERS: OrbiterDefinition[] = [
       radius: 75,
       inclinationDeg: 63,
       ascendingNodeDeg: 42,
-      phaseDeg: 115,
-      angularVelocity: 0.074,
+      phaseDeg: 331,
+      angularVelocity: 0.14,
       direction: -1,
     },
   },
@@ -139,14 +139,29 @@ const ORBITERS: OrbiterDefinition[] = [
     id: 'kumwe-scout',
     kind: 'spacecraft',
     variant: 'scout',
-    size: 0.92,
+    size: 0.76,
     colour: 0x67f2dc,
     elements: {
-      radius: 78,
-      inclinationDeg: 46,
-      ascendingNodeDeg: 118,
-      phaseDeg: 78,
-      angularVelocity: 0.068,
+      radius: 66,
+      inclinationDeg: 12,
+      ascendingNodeDeg: -18,
+      phaseDeg: 12,
+      angularVelocity: 0.13,
+    },
+  },
+  {
+    id: 'relay-c',
+    kind: 'satellite',
+    variant: 'cube',
+    size: 0.43,
+    colour: 0x6ee6f2,
+    elements: {
+      radius: 73,
+      inclinationDeg: -12,
+      ascendingNodeDeg: 82,
+      phaseDeg: 35,
+      angularVelocity: 0.16,
+      direction: -1,
     },
   },
   {
@@ -159,8 +174,8 @@ const ORBITERS: OrbiterDefinition[] = [
       radius: 64,
       inclinationDeg: -41,
       ascendingNodeDeg: 202,
-      phaseDeg: 280,
-      angularVelocity: 0.124,
+      phaseDeg: 307,
+      angularVelocity: 0.19,
     },
   },
   {
@@ -173,8 +188,8 @@ const ORBITERS: OrbiterDefinition[] = [
       radius: 71,
       inclinationDeg: 51.6,
       ascendingNodeDeg: -38,
-      phaseDeg: 125,
-      angularVelocity: 0.059,
+      phaseDeg: 315,
+      angularVelocity: 0.11,
     },
   },
 ];
