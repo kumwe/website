@@ -103,14 +103,21 @@ const {
   }
 
   .product-dock h2 {
+    width: fit-content;
+    max-width: 100%;
     color: var(--text, #f4f8fc);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--page, #020713), transparent 14%);
+    box-shadow: 0 0 1.2rem color-mix(in srgb, var(--page, #020713), transparent 16%);
     font-size: clamp(1.35rem, 2.2vw, 1.8rem);
     font-weight: 720;
     letter-spacing: -0.025em;
     line-height: 1.15;
-    margin: 0 0 1.45rem;
+    margin: 0 auto 1.45rem;
+    padding: 0.22rem 0.72rem 0.28rem;
     position: relative;
     text-align: center;
+    backdrop-filter: blur(0.35rem);
     z-index: 2;
   }
 
@@ -322,6 +329,7 @@ const {
 
   @media (max-width: 39.99rem) {
     .product-dock h2 {
+      margin-inline: 0;
       text-align: start;
     }
 
