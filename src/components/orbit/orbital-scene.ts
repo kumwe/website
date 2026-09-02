@@ -58,11 +58,27 @@ interface ScenePalette {
   trail: THREE.ColorRepresentation;
 }
 
+interface GeographicPoint {
+  latitude: number;
+  longitude: number;
+}
+
+interface LocationMarkerRuntime {
+  core: THREE.Mesh;
+  coreMaterial: THREE.MeshBasicMaterial;
+  glow: THREE.Mesh;
+  glowMaterial: THREE.ShaderMaterial;
+  group: THREE.Group;
+  ring: THREE.Mesh;
+  ringMaterial: THREE.MeshBasicMaterial;
+}
+
 type EarthTextureRole = 'bump' | 'clouds' | 'day' | 'night' | 'water';
 
 const EARTH_RADIUS = 52;
 const INITIAL_EARTH_ROTATION = THREE.MathUtils.degToRad(-120);
-const NAMIBIA = { latitude: -22.56, longitude: 17.08 };
+const WINDHOEK = { latitude: -22.56, longitude: 17.08 };
+const KATWITWI = { latitude: -17.4, longitude: 18.41667 };
 const TRAIL_SEGMENTS = 18;
 const TRAIL_RADIANS = Math.PI * 0.24;
 const EARTH_ROTATION_SPEED = 0.001;
@@ -260,8 +276,10 @@ export function mountOrbitalScene(
   outerAtmosphere.scale.setScalar(1.043);
   earthSurface.add(innerAtmosphere, outerAtmosphere);
 
-  const locationMarker = createLocationMarker();
-  earthSurface.add(locationMarker.group);
+  const windhoekMarker = createLocationMarker(WINDHOEK);
+  const originMarker = createLocationMarker(KATWITWI, 1.28);
+  const locationMarkers = [windhoekMarker, originMarker];
+  earthSurface.add(windhoekMarker.group, originMarker.group);
   const locationReadout = container.querySelector<HTMLElement>('[data-location-readout]');
   const markerWorldPosition = new THREE.Vector3();
   const earthWorldPosition = new THREE.Vector3();
@@ -272,7 +290,7 @@ export function mountOrbitalScene(
     if (!locationReadout) return;
 
     scene.updateMatrixWorld(true);
-    locationMarker.group.getWorldPosition(markerWorldPosition);
+    originMarker.core.getWorldPosition(markerWorldPosition);
     earthSurface.getWorldPosition(earthWorldPosition);
     markerOutward.copy(markerWorldPosition).sub(earthWorldPosition).normalize();
     markerToCamera.copy(camera.position).sub(markerWorldPosition).normalize();
@@ -344,9 +362,11 @@ export function mountOrbitalScene(
     starMaterial.uniforms.uThemeOpacity.value = resolvedTheme === 'dark' ? 1 : 0.26;
     cloudMaterial.color.set(resolvedTheme === 'dark' ? 0xddebf2 : 0xffffff);
     cloudMaterial.opacity = resolvedTheme === 'dark' ? 0.43 : 0.34;
-    locationMarker.coreMaterial.color.set(resolvedTheme === 'dark' ? 0xf4ffff : palette.marker);
-    locationMarker.ringMaterial.color.set(palette.marker);
-    locationMarker.glowMaterial.uniforms.uColour.value.set(palette.marker);
+    for (const marker of locationMarkers) {
+      marker.coreMaterial.color.set(resolvedTheme === 'dark' ? 0xf4ffff : palette.marker);
+      marker.ringMaterial.color.set(palette.marker);
+      marker.glowMaterial.uniforms.uColour.value.set(palette.marker);
+    }
 
     renderer.toneMappingExposure = resolvedTheme === 'dark' ? 1.02 : 1.08;
     ambientLight.intensity = resolvedTheme === 'dark' ? 0.38 : 0.62;
@@ -422,17 +442,18 @@ export function mountOrbitalScene(
     innerAtmosphereMaterial.uniforms.uTime.value = animatedTime;
     outerAtmosphereMaterial.uniforms.uTime.value = animatedTime;
 
-    const markerPulse = reducedMotion ? 1 : 1 + Math.sin(animatedTime * 1.65) * 0.095;
-    locationMarker.ring.scale.setScalar(markerPulse);
-    locationMarker.glow.scale.setScalar(
-      reducedMotion ? 1 : 1 + Math.sin(animatedTime * 1.65) * 0.075,
-    );
-    locationMarker.ringMaterial.opacity = reducedMotion
-      ? 0.45
-      : 0.26 + (Math.sin(animatedTime * 1.65) + 1) * 0.075;
-    locationMarker.glowMaterial.uniforms.uOpacity.value = reducedMotion
-      ? 0.26
-      : 0.2 + (Math.sin(animatedTime * 1.65) + 1) * 0.045;
+    for (const [index, marker] of locationMarkers.entries()) {
+      const pulsePhase = animatedTime * 1.65 + index * 0.72;
+      const markerPulse = reducedMotion ? 1 : 1 + Math.sin(pulsePhase) * 0.095;
+      marker.ring.scale.setScalar(markerPulse);
+      marker.glow.scale.setScalar(reducedMotion ? 1 : 1 + Math.sin(pulsePhase) * 0.075);
+      marker.ringMaterial.opacity = reducedMotion
+        ? 0.45
+        : 0.26 + (Math.sin(pulsePhase) + 1) * 0.075;
+      marker.glowMaterial.uniforms.uOpacity.value = reducedMotion
+        ? 0.26
+        : 0.2 + (Math.sin(pulsePhase) + 1) * 0.045;
+    }
 
     for (const orbiter of orbiters) {
       const position = orbitalPositionAt(orbiter.elements, animatedTime);
@@ -875,16 +896,9 @@ function createStars(count: number, material: THREE.ShaderMaterial): THREE.Point
   return new THREE.Points(geometry, material);
 }
 
-function createLocationMarker(): {
-  coreMaterial: THREE.MeshBasicMaterial;
-  glow: THREE.Mesh;
-  glowMaterial: THREE.ShaderMaterial;
-  group: THREE.Group;
-  ring: THREE.Mesh;
-  ringMaterial: THREE.MeshBasicMaterial;
-} {
+function createLocationMarker(point: GeographicPoint, size = 1): LocationMarkerRuntime {
   const group = new THREE.Group();
-  const normal = latitudeLongitudeToNormal(NAMIBIA.latitude, NAMIBIA.longitude);
+  const normal = latitudeLongitudeToNormal(point.latitude, point.longitude);
   const position = normal.clone().multiplyScalar(EARTH_RADIUS * 1.012);
 
   const coreMaterial = new THREE.MeshBasicMaterial({
@@ -932,9 +946,9 @@ function createLocationMarker(): {
       }
     `,
   });
-  const core = new THREE.Mesh(new THREE.CircleGeometry(0.3, 20), coreMaterial);
-  const ring = new THREE.Mesh(new THREE.RingGeometry(0.62, 0.82, 32), ringMaterial);
-  const glow = new THREE.Mesh(new THREE.CircleGeometry(1.65, 36), glowMaterial);
+  const core = new THREE.Mesh(new THREE.CircleGeometry(0.3 * size, 20), coreMaterial);
+  const ring = new THREE.Mesh(new THREE.RingGeometry(0.62 * size, 0.82 * size, 32), ringMaterial);
+  const glow = new THREE.Mesh(new THREE.CircleGeometry(1.65 * size, 36), glowMaterial);
   const facing = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
 
   core.position.copy(position);
@@ -948,7 +962,7 @@ function createLocationMarker(): {
   glow.renderOrder = 5;
   group.add(glow, ring, core);
 
-  return { coreMaterial, glow, glowMaterial, group, ring, ringMaterial };
+  return { core, coreMaterial, glow, glowMaterial, group, ring, ringMaterial };
 }
 
 function latitudeLongitudeToNormal(latitude: number, longitude: number): THREE.Vector3 {
