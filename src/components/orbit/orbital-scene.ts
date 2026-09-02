@@ -37,8 +37,8 @@ interface NavigatorWithHints extends Navigator {
 
 interface OrbiterDefinition {
   id: string;
-  kind: 'satellite' | 'station';
-  variant: 'cube' | 'relay' | 'station' | 'weather';
+  kind: 'satellite' | 'spacecraft' | 'station';
+  variant: 'cube' | 'relay' | 'scout' | 'station' | 'weather';
   size: number;
   elements: OrbitalElements;
   colour: number;
@@ -120,17 +120,17 @@ const ORBITERS: OrbiterDefinition[] = [
     },
   },
   {
-    id: 'relay-c',
-    kind: 'satellite',
-    variant: 'cube',
-    size: 0.38,
+    id: 'kumwe-scout',
+    kind: 'spacecraft',
+    variant: 'scout',
+    size: 0.92,
     colour: 0x67f2dc,
     elements: {
-      radius: 82,
-      inclinationDeg: 81,
+      radius: 78,
+      inclinationDeg: 46,
       ascendingNodeDeg: 118,
-      phaseDeg: 100,
-      angularVelocity: 0.052,
+      phaseDeg: 78,
+      angularVelocity: 0.068,
     },
   },
   {
@@ -1005,7 +1005,9 @@ function createOrbiterRuntime(
   const model =
     definition.kind === 'station'
       ? createStationModel(definition.size, materials)
-      : createSatelliteModel(definition, materials);
+      : definition.kind === 'spacecraft'
+        ? createMascotScoutModel(definition.size, materials)
+        : createSatelliteModel(definition, materials);
   model.name = definition.id;
   parent.add(model);
 
@@ -1125,6 +1127,83 @@ function createWeatherSatellite(
   dishMast.rotation.x = Math.PI / 2;
   dishMast.position.z = 1.2;
   group.add(body, panel, panelRail, dish, dishMast);
+  group.scale.setScalar(scale);
+  return group;
+}
+
+function createMascotScoutModel(
+  scale: number,
+  materials: ReturnType<typeof createOrbiterMaterials>,
+): THREE.Group {
+  const group = new THREE.Group();
+  const hullMaterial = materials.panelFrame.clone();
+  hullMaterial.color.set(0x45e1df);
+  hullMaterial.emissive.set(0x063f4a);
+  hullMaterial.emissiveIntensity = 0.36;
+
+  const canopyMaterial = new THREE.MeshPhysicalMaterial({
+    color: 0x8deaff,
+    emissive: 0x092c45,
+    emissiveIntensity: 0.45,
+    metalness: 0.08,
+    opacity: 0.52,
+    roughness: 0.08,
+    side: THREE.DoubleSide,
+    transparent: true,
+  });
+  const furMaterial = new THREE.MeshStandardMaterial({
+    color: 0xb78a5f,
+    emissive: 0x3a1d0e,
+    emissiveIntensity: 0.32,
+    roughness: 0.88,
+  });
+  const darkFurMaterial = new THREE.MeshStandardMaterial({
+    color: 0x34251f,
+    emissive: 0x120a07,
+    emissiveIntensity: 0.18,
+    roughness: 0.9,
+  });
+  const engineMaterial = new THREE.MeshBasicMaterial({
+    blending: THREE.AdditiveBlending,
+    color: 0x62f5ff,
+    depthWrite: false,
+    transparent: true,
+  });
+
+  const fuselage = new THREE.Mesh(new THREE.ConeGeometry(0.82, 3.8, 18), hullMaterial);
+  fuselage.rotation.x = Math.PI / 2;
+  const wing = new THREE.Mesh(new THREE.BoxGeometry(3.8, 0.12, 1.35), materials.panel);
+  wing.position.z = -0.55;
+  const tail = new THREE.Mesh(new THREE.BoxGeometry(0.14, 1.15, 1.2), hullMaterial);
+  tail.position.set(0, 0.55, -1.35);
+
+  const pilot = new THREE.Group();
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.36, 16, 12), furMaterial);
+  head.scale.set(0.92, 1.08, 0.88);
+  const leftEar = new THREE.Mesh(new THREE.SphereGeometry(0.15, 12, 8), darkFurMaterial);
+  const rightEar = leftEar.clone();
+  leftEar.position.set(-0.28, 0.26, -0.02);
+  rightEar.position.set(0.28, 0.26, -0.02);
+  const muzzle = new THREE.Mesh(new THREE.SphereGeometry(0.15, 12, 8), darkFurMaterial);
+  muzzle.scale.set(0.78, 0.62, 1.15);
+  muzzle.position.set(0, -0.06, 0.3);
+  pilot.add(leftEar, rightEar, head, muzzle);
+  pilot.position.set(0, 0.28, 0.22);
+
+  const canopy = new THREE.Mesh(new THREE.SphereGeometry(0.86, 20, 14), canopyMaterial);
+  canopy.scale.set(1, 0.72, 1.18);
+  canopy.position.set(0, 0.25, 0.2);
+  canopy.renderOrder = 8;
+
+  const engine = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.46, 0.5, 14), materials.detail);
+  engine.rotation.x = Math.PI / 2;
+  engine.position.z = -1.88;
+  const engineGlow = new THREE.Mesh(new THREE.CircleGeometry(0.31, 18), engineMaterial);
+  engineGlow.rotation.y = Math.PI;
+  engineGlow.position.z = -2.15;
+  engineGlow.renderOrder = 9;
+
+  group.add(fuselage, wing, tail, pilot, canopy, engine, engineGlow);
   group.scale.setScalar(scale);
   return group;
 }
