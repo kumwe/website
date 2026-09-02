@@ -140,13 +140,13 @@ const ORBITERS: OrbiterDefinition[] = [
     id: 'kumwe-scout',
     kind: 'spacecraft',
     variant: 'scout',
-    size: 0.76,
+    size: 0.86,
     colour: 0x67f2dc,
     elements: {
-      radius: 66,
-      inclinationDeg: 12,
-      ascendingNodeDeg: -18,
-      phaseDeg: 12,
+      radius: 62,
+      inclinationDeg: 24,
+      ascendingNodeDeg: 0,
+      phaseDeg: 70,
       angularVelocity: 0.068,
     },
   },
@@ -495,9 +495,12 @@ export function mountOrbitalScene(
       orientAlongTangent(orbiter.model, tangent, position);
 
       if (orbiter.kind === 'spacecraft') {
+        const foregroundDepth =
+          position.y * Math.sin(AXIAL_VIEW_TILT) + position.z * Math.cos(AXIAL_VIEW_TILT);
         const gesture = Math.pow(Math.max(0, Math.sin(animatedTime * 0.34)), 6);
         orbiter.model.rotateZ(Math.sin(animatedTime * 0.72) * 0.055);
         if (scoutPilot) {
+          scoutPilot.visible = Boolean(scoutPilotMaterial?.map) && foregroundDepth > 16;
           scoutPilot.position.x = Math.sin(animatedTime * 1.3) * gesture * 0.035;
           scoutPilot.position.y = 0.48 + gesture * 0.045;
         }
@@ -1277,14 +1280,14 @@ function createMascotScoutModel(
   const pilotMaterial = new THREE.SpriteMaterial({
     alphaTest: 0.025,
     color: 0xffffff,
-    depthTest: true,
+    depthTest: false,
     depthWrite: false,
     transparent: true,
   });
   const pilot = new THREE.Sprite(pilotMaterial);
   pilot.position.set(0, 0.48, 0.58);
-  pilot.scale.set(1.08, 1.08, 1);
-  pilot.renderOrder = 7;
+  pilot.scale.set(1.65, 1.65, 1);
+  pilot.renderOrder = 10;
   pilot.visible = false;
 
   const canopy = new THREE.Mesh(new THREE.SphereGeometry(0.82, 24, 16), canopyMaterial);
