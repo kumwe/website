@@ -60,12 +60,13 @@ const productItems = homeExperience.products.map((product, index) => ({
         </div>
 
         <div class="home-hero__orbit" data-home-orbital-viewport>
-          <OrbitalScene quality="high" />
-          <div class="namibia-readout" aria-hidden="true">
-            <span class="namibia-readout__signal"></span>
-            <span>22.56° S · 17.08° E</span>
-            <strong>NAMIBIA · ORIGIN</strong>
-          </div>
+          <OrbitalScene quality="high">
+            <div class="namibia-readout" data-location-readout aria-hidden="true">
+              <span class="namibia-readout__signal"></span>
+              <span>22.56° S · 17.08° E</span>
+              <strong>NAMIBIA · ORIGIN</strong>
+            </div>
+          </OrbitalScene>
         </div>
       </div>
 
