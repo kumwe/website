@@ -126,6 +126,20 @@ const {
     pointer-events: none;
   }
 
+  .cinematic-scene--cta .cinematic-scene__image {
+    filter: saturate(1.02) contrast(1.02) brightness(1.08) !important;
+  }
+
+  .cinematic-scene--cta .cinematic-scene__wash {
+    background: radial-gradient(circle at 18% 12%, rgb(72 218 255 / 7%), transparent 42%);
+  }
+
+  .cinematic-scene--cta .cinematic-scene__edge {
+    box-shadow:
+      inset 0 0 0 1px rgb(255 255 255 / 4%),
+      inset 0 0 4rem rgb(2 7 19 / 8%);
+  }
+
   :global(html[data-theme='dark']) .cinematic-scene__image--default {
     filter: saturate(0.96) contrast(1.03) brightness(0.94);
   }
