@@ -1060,12 +1060,11 @@ body {
   background:
     linear-gradient(
       90deg,
-      color-mix(in srgb, var(--page), transparent 0%) 0%,
-      color-mix(in srgb, var(--page), transparent 7%) 38%,
-      color-mix(in srgb, var(--page), transparent 44%) 66%,
-      transparent 100%
+      color-mix(in srgb, var(--page), transparent 82%) 0%,
+      transparent 18% 82%,
+      color-mix(in srgb, var(--page), transparent 84%) 100%
     ),
-    linear-gradient(180deg, transparent 46%, color-mix(in srgb, var(--page), transparent 18%));
+    linear-gradient(0deg, color-mix(in srgb, var(--page), transparent 72%), transparent 28%);
   content: '';
   pointer-events: none;
 }
@@ -1089,11 +1088,13 @@ body {
 .mission-closing h2 {
   max-width: 17ch;
   font-size: clamp(2rem, 3.7vw, 3.7rem);
+  text-shadow: 0 0.15rem 1.3rem var(--page);
 }
 
 .mission-closing p {
   max-width: 40rem;
   margin-top: 0.9rem;
+  text-shadow: 0 0.1rem 0.8rem var(--page);
 }
 
 .mission-closing__signal {
@@ -1610,10 +1611,11 @@ body {
     background:
       linear-gradient(
         180deg,
-        color-mix(in srgb, var(--page), transparent 2%) 0 43%,
-        transparent 78%
+        color-mix(in srgb, var(--page), transparent 80%) 0%,
+        transparent 20% 76%,
+        color-mix(in srgb, var(--page), transparent 72%) 100%
       ),
-      linear-gradient(0deg, color-mix(in srgb, var(--page), transparent 10%), transparent 55%);
+      linear-gradient(90deg, color-mix(in srgb, var(--page), transparent 84%), transparent 24%);
   }
 
   .not-found::after {
