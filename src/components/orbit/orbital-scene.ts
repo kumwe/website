@@ -81,7 +81,7 @@ const WINDHOEK = { latitude: -22.56, longitude: 17.08 };
 const KATWITWI = { latitude: -17.4, longitude: 18.41667 };
 const TRAIL_SEGMENTS = 18;
 const TRAIL_RADIANS = Math.PI * 0.24;
-const EARTH_ROTATION_SPEED = 0.0014;
+const EARTH_ROTATION_SPEED = 0.006;
 const CLOUD_ROTATION_SPEED = 0.000085;
 const SCOUT_PILOT_TEXTURE = '/images/mascot/system/kumwe-cockpit-pilot.webp';
 const AXIAL_VIEW_TILT = THREE.MathUtils.degToRad(-58);
@@ -116,9 +116,9 @@ const ORBITERS: OrbiterDefinition[] = [
     elements: {
       radius: 67,
       inclinationDeg: 28,
-      ascendingNodeDeg: -18,
-      phaseDeg: 60,
-      angularVelocity: 0.17,
+      ascendingNodeDeg: 30,
+      phaseDeg: 11,
+      angularVelocity: 0.105,
     },
   },
   {
@@ -131,8 +131,8 @@ const ORBITERS: OrbiterDefinition[] = [
       radius: 75,
       inclinationDeg: 63,
       ascendingNodeDeg: 42,
-      phaseDeg: 331,
-      angularVelocity: 0.14,
+      phaseDeg: 18,
+      angularVelocity: 0.074,
       direction: -1,
     },
   },
@@ -147,22 +147,7 @@ const ORBITERS: OrbiterDefinition[] = [
       inclinationDeg: 12,
       ascendingNodeDeg: -18,
       phaseDeg: 12,
-      angularVelocity: 0.13,
-    },
-  },
-  {
-    id: 'relay-c',
-    kind: 'satellite',
-    variant: 'cube',
-    size: 0.43,
-    colour: 0x6ee6f2,
-    elements: {
-      radius: 73,
-      inclinationDeg: -12,
-      ascendingNodeDeg: 82,
-      phaseDeg: 35,
-      angularVelocity: 0.16,
-      direction: -1,
+      angularVelocity: 0.068,
     },
   },
   {
@@ -175,8 +160,8 @@ const ORBITERS: OrbiterDefinition[] = [
       radius: 64,
       inclinationDeg: -41,
       ascendingNodeDeg: 202,
-      phaseDeg: 307,
-      angularVelocity: 0.19,
+      phaseDeg: 333,
+      angularVelocity: 0.124,
     },
   },
   {
@@ -188,9 +173,9 @@ const ORBITERS: OrbiterDefinition[] = [
     elements: {
       radius: 71,
       inclinationDeg: 51.6,
-      ascendingNodeDeg: -38,
-      phaseDeg: 315,
-      angularVelocity: 0.11,
+      ascendingNodeDeg: 55,
+      phaseDeg: 309,
+      angularVelocity: 0.059,
     },
   },
 ];
