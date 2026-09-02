@@ -71,13 +71,33 @@ body {
 }
 
 .primary-nav a {
+  border: 1px solid transparent;
+  border-radius: 0.72rem;
+  padding: 0.42rem 0.65rem;
   font-size: 0.79rem;
   font-weight: 590;
+  transition:
+    border-color var(--speed) ease,
+    background var(--speed) ease,
+    box-shadow var(--speed) ease,
+    color var(--speed) ease;
 }
 
 .primary-nav a::after {
   bottom: -1rem;
   box-shadow: 0 0 0.8rem var(--accent);
+}
+
+.primary-nav a[aria-current='page'] {
+  border-color: var(--mission-hairline-strong);
+  background: color-mix(in srgb, var(--accent), transparent 87%);
+  box-shadow:
+    inset 0 0 1.2rem color-mix(in srgb, var(--accent), transparent 88%),
+    0 0 1.2rem color-mix(in srgb, var(--accent), transparent 88%);
+}
+
+.primary-nav a[aria-current='page']::after {
+  display: none;
 }
 
 .header-tools {
