@@ -262,6 +262,40 @@ export function mountOrbitalScene(
 
   const locationMarker = createLocationMarker();
   earthSurface.add(locationMarker.group);
+  const locationReadout = container.querySelector<HTMLElement>('[data-location-readout]');
+  const markerWorldPosition = new THREE.Vector3();
+  const earthWorldPosition = new THREE.Vector3();
+  const markerOutward = new THREE.Vector3();
+  const markerToCamera = new THREE.Vector3();
+
+  const updateLocationReadout = (): void => {
+    if (!locationReadout) return;
+
+    scene.updateMatrixWorld(true);
+    locationMarker.group.getWorldPosition(markerWorldPosition);
+    earthSurface.getWorldPosition(earthWorldPosition);
+    markerOutward.copy(markerWorldPosition).sub(earthWorldPosition).normalize();
+    markerToCamera.copy(camera.position).sub(markerWorldPosition).normalize();
+
+    const facesCamera = markerOutward.dot(markerToCamera) > 0.02;
+    markerWorldPosition.project(camera);
+    const inView =
+      markerWorldPosition.z >= -1 &&
+      markerWorldPosition.z <= 1 &&
+      Math.abs(markerWorldPosition.x) <= 1.05 &&
+      Math.abs(markerWorldPosition.y) <= 1.05;
+
+    locationReadout.style.setProperty(
+      '--origin-x',
+      `${(markerWorldPosition.x * 0.5 + 0.5) * container.clientWidth}px`,
+    );
+    locationReadout.style.setProperty(
+      '--origin-y',
+      `${(-markerWorldPosition.y * 0.5 + 0.5) * container.clientHeight}px`,
+    );
+    locationReadout.dataset.tracking = 'true';
+    locationReadout.dataset.visible = String(facesCamera && inView);
+  };
 
   const starMaterial = createStarMaterial(renderer.getPixelRatio());
   const stars = createStars(compact ? 420 : simplified ? 540 : 780, starMaterial);
@@ -430,6 +464,8 @@ export function mountOrbitalScene(
       positionAttribute.needsUpdate = true;
       orbiter.trail.geometry.computeBoundingSphere();
     }
+
+    updateLocationReadout();
   };
 
   const renderFrame = (time: number): void => {
@@ -588,6 +624,13 @@ export function mountOrbitalScene(
       colourSchemeQuery.removeEventListener('change', handleColourScheme);
       renderer.domElement.removeEventListener('webglcontextlost', handleContextLost);
       renderer.domElement.removeEventListener('webglcontextrestored', handleContextRestored);
+
+      if (locationReadout) {
+        delete locationReadout.dataset.tracking;
+        delete locationReadout.dataset.visible;
+        locationReadout.style.removeProperty('--origin-x');
+        locationReadout.style.removeProperty('--origin-y');
+      }
 
       for (const texture of Object.values(textures)) texture?.dispose();
       disposeScene(scene);
