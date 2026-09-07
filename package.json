@@ -23,8 +23,8 @@
     "qa": "npm run format:check && npm run lint && npm run check && npm run test && npm run build"
   },
   "dependencies": {
-    "@astrojs/sitemap": "3.7.3",
-    "astro": "7.2.9",
+    "@astrojs/sitemap": "3.7.4",
+    "astro": "7.3.1",
     "three": "0.185.1"
   },
   "devDependencies": {
