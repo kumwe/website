@@ -1,8 +1,18 @@
 # Kumwe website
 
+[![CI](https://github.com/kumwe/website/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/kumwe/website/actions/workflows/ci.yml)
+[![GitHub Pages](https://github.com/kumwe/website/actions/workflows/deploy-pages.yml/badge.svg?branch=main)](https://github.com/kumwe/website/actions/workflows/deploy-pages.yml)
+[![Source version](https://img.shields.io/github/package-json/v/kumwe/website?label=source%20version)](package.json)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D22.12.0-339933)](package.json)
+[![License](https://img.shields.io/github/license/kumwe/website)](LICENSE)
+
 The public website for [Kumwe](https://www.kumwe.net/), an open-source CMS and business application platform.
 
 The site is a fully static [Astro](https://astro.build/) build for GitHub Pages. Its home page uses a progressively enhanced Three.js scene: Earth, a highlighted Namibia, twinkling stars, a breathing atmosphere, four satellites and an ISS-like station share one depth-tested 3D space. Orbiters pass naturally behind Earth and reappear in front. Visitors who disable motion, enable Save-Data, use lower-powered devices or lack WebGL receive a deliberate static fallback.
+
+## Relationship to Core
+
+This repository publishes the public ecosystem website. It does not run Kumwe Core, own application data or authorization, or distribute a Composer package. Product claims and package links must reflect the owning repository's released behavior. The source version in `package.json` identifies this private build project; it is not a published npm package.
 
 ## Technology
 
@@ -63,20 +73,20 @@ Arabic and Hebrew are marked right-to-left. Planned languages appear as status i
 4. generate the corresponding static locale routes and `hreflang` entries;
 5. run the full QA suite in both text directions where applicable.
 
-## GitHub Pages
+## Deployment and custom domain
 
 `.github/workflows/deploy-pages.yml` builds and deploys on pushes to `main`. The repository Pages source must be set to **GitHub Actions**.
 
-The intended canonical domain is `www.kumwe.net`. `public/CNAME` records that intent in the build, but the GitHub Pages repository setting remains authoritative for an Actions deployment. Before changing public DNS:
+The configured canonical domain is `www.kumwe.net`, recorded in `public/CNAME`. The GitHub Pages repository setting remains authoritative for an Actions deployment. To configure or change the domain:
 
 1. verify `kumwe.net` in the Kumwe GitHub organisation;
 2. configure `www.kumwe.net` as this repository's Pages custom domain;
 3. point the `www` CNAME to `kumwe.github.io`;
 4. confirm the Pages deployment and DNS check;
 5. enable HTTPS enforcement;
-6. only then replace the existing site's DNS path.
+6. complete any DNS cutover only after the deployment is verified.
 
-This staged cutover avoids a takeover window and keeps the current site available until the new deployment is verified.
+Keep the current site available while validating a replacement deployment and its domain ownership.
 
 ## Licensing and brand
 
