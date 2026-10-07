@@ -64,14 +64,12 @@ const stars = STAR_SEEDS.slice(0, starCount);
   <span class="space-backdrop__orbit space-backdrop__orbit--far"></span>
   <span class="space-backdrop__horizon"></span>
   <span class="space-backdrop__stars">
-    {
-      stars.map(([x, y, size, duration, delay], index) => (
-        <i
-          class:list={['space-backdrop__star', index % 7 === 0 && 'is-bright']}
-          style={`--star-x:${x}%;--star-y:${y}%;--star-size:${size}px;--star-duration:${duration}s;--star-delay:${delay}s`}
-        />
-      ))
-    }
+    {stars.map(([x, y, size, duration, delay], index) => (
+      <i
+        class:list={['space-backdrop__star', index % 7 === 0 && 'is-bright']}
+        style={`--star-x:${x}%;--star-y:${y}%;--star-size:${size}px;--star-duration:${duration}s;--star-delay:${delay}s`}
+      />
+    ))}
   </span>
   <span class="space-backdrop__grain"></span>
 </div>

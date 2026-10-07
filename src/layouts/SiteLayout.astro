@@ -62,7 +62,9 @@ const canonical = new URL(Astro.url.pathname, SITE.url);
   </head>
   <body>
     <SpaceBackdrop class="site-space-backdrop" density="rich" variant="deep" />
-    <a class="skip-link" href="#main-content">{defaultCatalogue.accessibility.skipToContent}</a>
+    <a class="skip-link" href="#main-content">
+      {defaultCatalogue.accessibility.skipToContent}
+    </a>
     <SiteHeader currentPath={Astro.url.pathname} />
     <main class="page-main" id="main-content">
       <slot />

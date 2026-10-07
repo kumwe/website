@@ -25,20 +25,20 @@ const productItems = homeExperience.products.map((product, index) => ({
         <div class="home-hero__copy">
           <span class="home-eyebrow">{copy.hero.eyebrow}</span>
           <h1 class="home-title" id="home-title">
-            {
-              copy.hero.titleLines?.map((line, index) => (
-                <span class="home-title__line" data-home-title-line>
-                  {line}
-                  {index < copy.hero.titleLines!.length - 1 ? ' ' : ''}
-                </span>
-              ))
-            }
+            {copy.hero.titleLines?.map((line, index) => (
+              <span class="home-title__line" data-home-title-line>
+                {line}
+                {index < copy.hero.titleLines!.length - 1 ? ' ' : ''}
+              </span>
+            ))}
           </h1>
           <p class="home-summary">{copy.hero.summary}</p>
           <div class="hero-actions home-actions">
             <a class="button button-primary" href={pages.home.primaryActionHref}>
               {copy.hero.primaryAction.label}
-              <span class="button-arrow" aria-hidden="true">→</span>
+              <span class="button-arrow" aria-hidden="true">
+                →
+              </span>
             </a>
             <a
               class="button button-secondary button-github"
@@ -85,18 +85,16 @@ const productItems = homeExperience.products.map((product, index) => ({
         <h2 id="home-core-title">{firstSection.title}</h2>
         <p class="section-lead">{firstSection.body}</p>
         <div class="home-principles" data-visual-story>
-          {
-            firstSection.items?.map((item, index) => (
-              <article>
-                <span class="mission-index">0{index + 1}</span>
-                <div>
-                  <span class="section-kicker">{item.eyebrow}</span>
-                  <h3>{item.title}</h3>
-                  <p>{item.description}</p>
-                </div>
-              </article>
-            ))
-          }
+          {firstSection.items?.map((item, index) => (
+            <article>
+              <span class="mission-index">0{index + 1}</span>
+              <div>
+                <span class="section-kicker">{item.eyebrow}</span>
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+              </div>
+            </article>
+          ))}
         </div>
       </div>
       <CinematicScene
@@ -120,7 +118,9 @@ const productItems = homeExperience.products.map((product, index) => ({
           variant="section"
         />
         <div class="visual-bay__legend" aria-hidden="true">
-          <span>01 · INSPECT</span><span>02 · VERIFY</span><span>03 · ACTIVATE</span>
+          <span>01 · INSPECT</span>
+          <span>02 · VERIFY</span>
+          <span>03 · ACTIVATE</span>
         </div>
       </div>
       <div class="home-section-copy">
@@ -132,7 +132,9 @@ const productItems = homeExperience.products.map((product, index) => ({
           <a class="button button-primary" href="/extensions/">
             Explore extensions <span aria-hidden="true">→</span>
           </a>
-          <a class="button button-secondary" href="/packages/">Browse packages</a>
+          <a class="button button-secondary" href="/packages/">
+            Browse packages
+          </a>
         </div>
       </div>
     </div>
@@ -155,54 +157,50 @@ const productItems = homeExperience.products.map((product, index) => ({
       />
       <div class="repository-constellation" data-visual-story>
         <span class="repository-constellation__orbit" aria-hidden="true"></span>
-        {
-          featuredRepositories.slice(0, 6).map((repository, index) => (
-            <a
-              class="repository-pod"
-              href={repository.url}
-              target="_blank"
-              rel="noreferrer"
-              style={`--pod-index:${index}`}
-            >
-              <span class="repository-pod__signal" aria-hidden="true" />
-              <span class="repository-pod__code">NODE · 0{index + 1}</span>
-              <strong>{repository.name}</strong>
-              <span>
-                {repositoryStages[repository.stage]} · {repositories[repository.id].title}
-              </span>
-              <i aria-hidden="true">↗</i>
-            </a>
-          ))
-        }
+        {featuredRepositories.slice(0, 6).map((repository, index) => (
+          <a
+            class="repository-pod"
+            href={repository.url}
+            target="_blank"
+            rel="noreferrer"
+            style={`--pod-index:${index}`}
+          >
+            <span class="repository-pod__signal" aria-hidden="true" />
+            <span class="repository-pod__code">NODE · 0{index + 1}</span>
+            <strong>{repository.name}</strong>
+            <span>
+              {repositoryStages[repository.stage]} · {repositories[repository.id].title}
+            </span>
+            <i aria-hidden="true">↗</i>
+          </a>
+        ))}
       </div>
     </div>
   </section>
 
-  {
-    copy.closing && (
-      <section class="container mission-closing" aria-labelledby="home-closing">
-        <CinematicScene
-          class="mission-closing__art"
-          src="/images/mascot/home/home-working-platform-cta.webp"
-          alt="The Kumwe meerkat piloting an operational spacecraft toward its destination."
-          objectPosition="64% 50%"
-          variant="cta"
-        />
-        <div class="mission-closing__copy">
-          <span class="section-kicker">MISSION READY</span>
-          <h2 id="home-closing">{copy.closing.title}</h2>
-          <p>{copy.closing.body}</p>
-        </div>
-        <a
-          class="button button-primary"
-          href={pages.home.secondaryActionHref}
-          target="_blank"
-          rel="noreferrer"
-        >
-          {copy.closing.action.label}
-          <span aria-hidden="true">↗</span>
-        </a>
-      </section>
-    )
-  }
+  {copy.closing && (
+    <section class="container mission-closing" aria-labelledby="home-closing">
+      <CinematicScene
+        class="mission-closing__art"
+        src="/images/mascot/home/home-working-platform-cta.webp"
+        alt="The Kumwe meerkat piloting an operational spacecraft toward its destination."
+        objectPosition="64% 50%"
+        variant="cta"
+      />
+      <div class="mission-closing__copy">
+        <span class="section-kicker">MISSION READY</span>
+        <h2 id="home-closing">{copy.closing.title}</h2>
+        <p>{copy.closing.body}</p>
+      </div>
+      <a
+        class="button button-primary"
+        href={pages.home.secondaryActionHref}
+        target="_blank"
+        rel="noreferrer"
+      >
+        {copy.closing.action.label}
+        <span aria-hidden="true">↗</span>
+      </a>
+    </section>
+  )}
 </SiteLayout>

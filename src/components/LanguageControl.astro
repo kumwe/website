@@ -13,7 +13,8 @@ const { language } = defaultCatalogue;
         fill="none"
         stroke="currentColor"
         stroke-width="1.7"
-        stroke-linecap="round"></path>
+        stroke-linecap="round"
+      ></path>
     </svg>
     <span>EN-GB</span>
   </summary>
@@ -25,15 +26,13 @@ const { language } = defaultCatalogue;
       <strong>{language.available}</strong>
     </div>
     <div class="locale-list" aria-label={language.planned}>
-      {
-        plannedLocaleList.map((locale) => (
-          <span class="locale-planned" title={`${locale.englishName} — ${language.planned}`}>
-            <span lang={locale.code} dir={locale.direction}>
-              {locale.nativeName}
-            </span>
+      {plannedLocaleList.map((locale) => (
+        <span class="locale-planned" title={`${locale.englishName} — ${language.planned}`}>
+          <span lang={locale.code} dir={locale.direction}>
+            {locale.nativeName}
           </span>
-        ))
-      }
+        </span>
+      ))}
     </div>
   </div>
 </details>
