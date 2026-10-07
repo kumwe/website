@@ -9,29 +9,31 @@ const { footer, navigation } = defaultCatalogue;
   <div class="container">
     <div class="footer-console">
       <nav class="footer-navigation" aria-label={footer.projectLinks}>
-        {
-          FOOTER_NAVIGATION.map((item) => (
-            <a
-              href={item.href}
-              target={item.kind === 'external' ? '_blank' : undefined}
-              rel={item.kind === 'external' ? 'noreferrer' : undefined}
-            >
-              {navigation[item.id]}
-            </a>
-          ))
-        }
-        <a href={EXTERNAL_LINKS.websiteRepository} target="_blank" rel="noreferrer"
-          >Website source</a
-        >
+        {FOOTER_NAVIGATION.map((item) => (
+          <a
+            href={item.href}
+            target={item.kind === 'external' ? '_blank' : undefined}
+            rel={item.kind === 'external' ? 'noreferrer' : undefined}
+          >
+            {navigation[item.id]}
+          </a>
+        ))}
+        <a href={EXTERNAL_LINKS.websiteRepository} target="_blank" rel="noreferrer">
+          Website source
+        </a>
       </nav>
       <div class="footer-attribution">
         <a class="made-with-love" href={SITE.ownerUrl} target="_blank" rel="noreferrer">
           Made with <span aria-label="love">♥</span> by VAST Development Method
         </a>
         <span aria-hidden="true">·</span>
-        <a href={EXTERNAL_LINKS.apacheLicence} target="_blank" rel="noreferrer">Apache 2.0</a>
+        <a href={EXTERNAL_LINKS.apacheLicence} target="_blank" rel="noreferrer">
+          Apache 2.0
+        </a>
       </div>
     </div>
-    <p class="footer-legal">{footer.copyright} {footer.trademark}</p>
+    <p class="footer-legal">
+      {footer.copyright} {footer.trademark}
+    </p>
   </div>
 </footer>

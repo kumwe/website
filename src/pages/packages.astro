@@ -19,26 +19,24 @@ const groups: RepositoryGroup[] = ['foundation', 'business-runtime', 'delivery']
           status is planned unless a repository explicitly publishes a release.
         </p>
       </div>
-      {
-        groups.map((group) => (
-          <section style="margin-block-start: 2.5rem;" aria-labelledby={`group-${group}`}>
-            <h3 id={`group-${group}`}>{defaultCatalogue.repositoryGroups[group]}</h3>
-            <div class="repository-grid">
-              {repositoriesByGroup[group]
-                ?.filter((repository) => !repository.featured)
-                .map((repository) => (
-                  <a class="repository-tile" href={repository.url} target="_blank" rel="noreferrer">
-                    <strong>{repository.name}</strong>
-                    <span>
-                      {defaultCatalogue.repositoryStages[repository.stage]} ·{' '}
-                      {defaultCatalogue.repositories[repository.id].title}
-                    </span>
-                  </a>
-                ))}
-            </div>
-          </section>
-        ))
-      }
+      {groups.map((group) => (
+        <section style="margin-block-start: 2.5rem;" aria-labelledby={`group-${group}`}>
+          <h3 id={`group-${group}`}>{defaultCatalogue.repositoryGroups[group]}</h3>
+          <div class="repository-grid">
+            {repositoriesByGroup[group]
+              ?.filter((repository) => !repository.featured)
+              .map((repository) => (
+                <a class="repository-tile" href={repository.url} target="_blank" rel="noreferrer">
+                  <strong>{repository.name}</strong>
+                  <span>
+                    {defaultCatalogue.repositoryStages[repository.stage]} ·{' '}
+                    {defaultCatalogue.repositories[repository.id].title}
+                  </span>
+                </a>
+              ))}
+          </div>
+        </section>
+      ))}
     </div>
   </section>
 </PageLayout>

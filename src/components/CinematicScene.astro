@@ -37,17 +37,15 @@ const {
     decoding="async"
     fetchpriority={priority ? 'high' : 'auto'}
   />
-  {
-    lightSrc && (
-      <img
-        class="cinematic-scene__image cinematic-scene__image--light"
-        src={lightSrc}
-        alt=""
-        loading="lazy"
-        decoding="async"
-      />
-    )
-  }
+  {lightSrc && (
+    <img
+      class="cinematic-scene__image cinematic-scene__image--light"
+      src={lightSrc}
+      alt=""
+      loading="lazy"
+      decoding="async"
+    />
+  )}
   <span class="cinematic-scene__wash" aria-hidden="true"></span>
   <span class="cinematic-scene__edge" aria-hidden="true"></span>
 </div>

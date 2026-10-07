@@ -10,6 +10,11 @@ updates:
     open-pull-requests-limit: 10
     commit-message:
       prefix: deps
+    # Revisit when both @astrojs/check and typescript-eslint support newer TypeScript.
+    # Their current peer ranges intersect at >=5.0.0 <6.1.0.
+    ignore:
+      - dependency-name: typescript
+        versions: ['>=6.1.0']
     groups:
       production-dependencies:
         dependency-type: production
