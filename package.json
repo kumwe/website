@@ -23,15 +23,15 @@
     "qa": "npm run format:check && npm run lint && npm run check && npm run test && npm run build"
   },
   "dependencies": {
-    "@astrojs/sitemap": "3.7.4",
-    "astro": "7.3.8",
-    "three": "0.186.1"
+    "@astrojs/sitemap": "3.7.6",
+    "astro": "7.4.13",
+    "three": "0.187.0"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.10",
     "@axe-core/playwright": "4.13.0",
     "@playwright/test": "1.64.0",
-    "@types/three": "0.186.0",
+    "@types/three": "0.187.0",
     "eslint": "10.12.0",
     "eslint-plugin-astro": "3.2.1",
     "prettier": "3.9.9",
